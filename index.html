@@ -1,1 +1,352 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dnevno Čitanje</title>
 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-green {
+            background: #2ecc71;
+        }
+
+        .btn-green:hover {
+            background: #27ae60;
+        }
+
+        .btn-share {
+            background: #9b59b6;
+        }
+
+        .btn-share:hover {
+            background: #8e44ad;
+        }
+
+        input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .content-box {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📖 Dnevno Čitanje</h1>
+
+    <!-- Navigacija -->
+    <div class="nav-bar">
+
+        <button class="btn" onclick="promeniDan(-1)">
+            ◀️
+        </button>
+
+        <input
+            type="date"
+            id="datumIzbor"
+            onchange="ucitajTekst()"
+        >
+
+        <button class="btn" onclick="promeniDan(1)">
+            ▶️
+        </button>
+
+    </div>
+
+    <!-- Prikaz teksta -->
+    <div id="prikazSekcija">
+
+        <div id="tekstPrikaz" class="content-box">
+            Nema unetog teksta za ovaj datum.
+        </div>
+
+        <div class="actions">
+
+            <button class="btn btn-share" onclick="podeliTekst()">
+                📤 Podeli
+            </button>
+
+            <button class="btn" onclick="otvoriUredjivanje()">
+                ⚙️ Uredi
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Uređivanje -->
+    <div id="urediSekcija" class="hidden">
+
+        <textarea
+            id="tekstUnos"
+            placeholder="Unesite tekst čitanja za izabrani datum..."
+        ></textarea>
+
+        <div class="actions">
+
+            <button class="btn" onclick="otvoriPrikaz()">
+                Otkaži
+            </button>
+
+            <button class="btn btn-green" onclick="sacuvajTekst()">
+                💾 Sačuvaj
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const datumInput =
+        document.getElementById('datumIzbor');
+
+    const tekstPrikaz =
+        document.getElementById('tekstPrikaz');
+
+    const tekstUnos =
+        document.getElementById('tekstUnos');
+
+    const prikazSekcija =
+        document.getElementById('prikazSekcija');
+
+    const urediSekcija =
+        document.getElementById('urediSekcija');
+
+
+    // Današnji datum
+    datumInput.valueAsDate = new Date();
+
+
+    // Učitavanje teksta
+    function ucitajTekst() {
+
+        const izabraniDatum = datumInput.value;
+
+        const sacuvaniTekst =
+            localStorage.getItem(
+                'citanje_' + izabraniDatum
+            );
+
+        if (sacuvaniTekst) {
+
+            tekstPrikaz.innerText =
+                sacuvaniTekst;
+
+        } else {
+
+            tekstPrikaz.innerText =
+                "Nema unetog teksta za ovaj datum. " +
+                "Kliknite na '⚙️ Uredi' da dodate tekst.";
+
+        }
+
+        otvoriPrikaz();
+    }
+
+
+    // Prethodni / sledeći dan
+    function promeniDan(brojDana) {
+
+        let d = new Date(datumInput.value);
+
+        d.setDate(
+            d.getDate() + brojDana
+        );
+
+        datumInput.valueAsDate = d;
+
+        ucitajTekst();
+    }
+
+
+    // Otvori uređivanje
+    function otvoriUredjivanje() {
+
+        const izabraniDatum =
+            datumInput.value;
+
+        const sacuvaniTekst =
+            localStorage.getItem(
+                'citanje_' + izabraniDatum
+            ) || "";
+
+        tekstUnos.value =
+            sacuvaniTekst;
+
+        prikazSekcija.classList.add(
+            'hidden'
+        );
+
+        urediSekcija.classList.remove(
+            'hidden'
+        );
+    }
+
+
+    // Vrati prikaz
+    function otvoriPrikaz() {
+
+        prikazSekcija.classList.remove(
+            'hidden'
+        );
+
+        urediSekcija.classList.add(
+            'hidden'
+        );
+    }
+
+
+    // Sačuvaj tekst
+    function sacuvajTekst() {
+
+        const izabraniDatum =
+            datumInput.value;
+
+        const noviTekst =
+            tekstUnos.value;
+
+        localStorage.setItem(
+            'citanje_' + izabraniDatum,
+            noviTekst
+        );
+
+        ucitajTekst();
+    }
+
+
+    // Deljenje teksta
+    function podeliTekst() {
+
+        const tekstZaDeljenje =
+            tekstPrikaz.innerText;
+
+        if (navigator.share) {
+
+            navigator.share({
+
+                title:
+                    'Dnevno čitanje (' +
+                    datumInput.value +
+                    ')',
+
+                text:
+                    tekstZaDeljenje
+
+            }).catch(() => {});
+
+        } else {
+
+            navigator.clipboard
+                .writeText(tekstZaDeljenje)
+                .then(() => {
+
+                    alert(
+                        "Tekst je kopiran u međuspremnik!"
+                    );
+
+                })
+                .catch(() => {
+
+                    alert(
+                        "Nije moguće kopirati tekst."
+                    );
+
+                });
+
+        }
+    }
+
+
+    // Pokretanje aplikacije
+    ucitajTekst();
+
+</script>
+
+</body>
+</html>
