@@ -49,12 +49,12 @@
     .tab-navigation {
       display: flex;
       justify-content: space-between;
-      gap: 6px;
+      gap: 4px;
       margin-bottom: 20px;
     }
     .tab-btn {
-      padding: 10px 8px;
-      font-size: 13px;
+      padding: 8px 4px;
+      font-size: 11px;
       font-weight: bold;
       border: 2px solid #3498db;
       background-color: white;
@@ -147,11 +147,12 @@
       <button class="btn-main" onclick="changeDate(1)">▶</button>
     </div>
 
-    <!-- Navigacija između 3 taba -->
+    <!-- Navigacija između 4 taba -->
     <div class="tab-navigation">
       <button id="tabDailyBtn" class="tab-btn active" onclick="switchTab('daily')">📖 Dnevno Čitanje</button>
       <button id="tabPlanBtn" class="tab-btn" onclick="switchTab('plan')">📜 Godišnji Plan</button>
       <button id="tabVerseBtn" class="tab-btn" onclick="switchTab('verse')">💎 Stih Ohrabrenja</button>
+      <button id="tabQuoteBtn" class="tab-btn" onclick="switchTab('quote')">💡 Mudre Izreke</button>
     </div>
 
     <!-- TAB 1: Dnevno čitanje -->
@@ -214,6 +215,26 @@
       </div>
     </div>
 
+    <!-- TAB 4: Mudre izreke -->
+    <div id="quoteSection" class="hidden">
+      <div id="quoteViewMode">
+        <div id="quoteDisplay" class="display-area">Učitavanje...</div>
+        <div class="controls">
+          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.textContent)">📦 Podeli</button>
+          <button id="quoteEditBtn" class="btn-main" onclick="enableEdit('quote')">⚙️ Uredi</button>
+        </div>
+      </div>
+
+      <div id="quoteEditMode" class="hidden">
+        <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
+        <div id="quoteSaveStatus" class="status"></div>
+        <div class="controls">
+          <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
+          <button id="quoteSaveBtn" class="btn-main" onclick="saveTabContent('quote')">Sačuvaj</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -232,6 +253,7 @@
         tabDaily: "📖 Dnevno Čitanje",
         tabPlan: "📜 Godišnji Plan",
         tabVerse: "💎 Stih Ohrabrenja",
+        tabQuote: "💡 Mudre Izreke",
         share: "📦 Podeli",
         edit: "⚙️ Uredi",
         cancel: "Otkaži",
@@ -241,6 +263,7 @@
         emptyDaily: "Nema unetog dnevnog čitanja za ovaj datum.",
         emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
         emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
+        emptyQuote: "Nema unete mudre izreke za ovaj datum.",
         placeholder: "Unesite tekst...",
         promptPass: "Unesite šifru za uređivanje:",
         wrongPass: "Pogrešna šifra!",
@@ -251,6 +274,7 @@
         tabDaily: "📖 Daily Reading",
         tabPlan: "📜 Yearly Plan",
         tabVerse: "💎 Encouraging Verse",
+        tabQuote: "💡 Wise Sayings",
         share: "📦 Share",
         edit: "⚙️ Edit",
         cancel: "Cancel",
@@ -260,6 +284,7 @@
         emptyDaily: "No daily reading added for this date.",
         emptyPlan: "No yearly plan added for this date.",
         emptyVerse: "No encouraging verse added for this date.",
+        emptyQuote: "No wise saying added for this date.",
         placeholder: "Enter text...",
         promptPass: "Enter edit PIN:",
         wrongPass: "Incorrect PIN!",
@@ -289,8 +314,9 @@
       document.getElementById('tabDailyBtn').textContent = t.tabDaily;
       document.getElementById('tabPlanBtn').textContent = t.tabPlan;
       document.getElementById('tabVerseBtn').textContent = t.tabVerse;
+      document.getElementById('tabQuoteBtn').textContent = t.tabQuote;
 
-      ['daily', 'plan', 'verse'].forEach(tab => {
+      ['daily', 'plan', 'verse', 'quote'].forEach(tab => {
         document.getElementById(`${tab}ShareBtn`).textContent = t.share;
         document.getElementById(`${tab}EditBtn`).textContent = t.edit;
         document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
@@ -301,7 +327,7 @@
 
     function switchTab(tab) {
       currentTab = tab;
-      ['daily', 'plan', 'verse'].forEach(t => {
+      ['daily', 'plan', 'verse', 'quote'].forEach(t => {
         document.getElementById(`${t}Section`).classList.add('hidden');
         document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
       });
@@ -315,6 +341,7 @@
       if (tab === 'daily') return `${prefix}${date}`;
       if (tab === 'plan') return `${prefix}plan_${date}`;
       if (tab === 'verse') return `${prefix}stih_${date}`;
+      if (tab === 'quote') return `${prefix}izreka_${date}`;
     }
 
     async function loadAllTabs() {
@@ -324,6 +351,7 @@
       loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
       loadTabContent('plan', selectedDate, 'planDisplay', t.emptyPlan);
       loadTabContent('verse', selectedDate, 'verseDisplay', t.emptyVerse);
+      loadTabContent('quote', selectedDate, 'quoteDisplay', t.emptyQuote);
     }
 
     async function loadTabContent(tab, date, displayId, emptyText) {
@@ -389,7 +417,7 @@
         statusElem.textContent = "";
       } else {
         statusElem.textContent = "";
-        displayElem.textContent = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : t.emptyVerse);
+        displayElem.textContent = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
         editElem.classList.add('hidden');
         viewElem.classList.remove('hidden');
       }
