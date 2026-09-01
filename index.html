@@ -22,6 +22,30 @@
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .lang-switch {
+      display: flex;
+      gap: 5px;
+    }
+    .lang-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid #3498db;
+      background: white;
+      color: #3498db;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: #3498db;
+      color: white;
+    }
     .tab-navigation {
       display: flex;
       justify-content: space-between;
@@ -108,7 +132,15 @@
 <body>
 
   <div class="container">
-    <!-- Izbor datuma (zajednički za sve tabove) -->
+    <div class="top-bar">
+      <div style="font-weight: bold; color: #555;" id="appTitle">Biblijsko Čitanje</div>
+      <div class="lang-switch">
+        <button id="langSrbBtn" class="lang-btn active" onclick="setLanguage('sr')">SRB</button>
+        <button id="langEngBtn" class="lang-btn" onclick="setLanguage('en')">ENG</button>
+      </div>
+    </div>
+
+    <!-- Izbor datuma -->
     <div class="date-navigation">
       <button class="btn-main" onclick="changeDate(-1)">◀</button>
       <input type="date" id="datePicker" onchange="loadAllTabs()">
@@ -127,17 +159,17 @@
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button class="btn-purple" onclick="shareContent(dailyDisplay.textContent)">📦 Podeli</button>
-          <button class="btn-main" onclick="enableEdit('daily')">⚙️ Uredi</button>
+          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.textContent)">📦 Podeli</button>
+          <button id="dailyEditBtn" class="btn-main" onclick="enableEdit('daily')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="dailyEditMode" class="hidden">
-        <textarea id="dailyTextarea" placeholder="Unesite tekst za dnevno čitanje..."></textarea>
+        <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="dailySaveStatus" class="status"></div>
         <div class="controls">
-          <button onclick="cancelEdit('daily')">Otkaži</button>
-          <button class="btn-main" onclick="saveTabContent('daily')">Sačuvaj</button>
+          <button id="dailyCancelBtn" onclick="cancelEdit('daily')">Otkaži</button>
+          <button id="dailySaveBtn" class="btn-main" onclick="saveTabContent('daily')">Sačuvaj</button>
         </div>
       </div>
     </div>
@@ -147,17 +179,17 @@
       <div id="planViewMode">
         <div id="planDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button class="btn-purple" onclick="shareContent(planDisplay.textContent)">📦 Podeli</button>
-          <button class="btn-main" onclick="enableEdit('plan')">⚙️ Uredi</button>
+          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.textContent)">📦 Podeli</button>
+          <button id="planEditBtn" class="btn-main" onclick="enableEdit('plan')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="planEditMode" class="hidden">
-        <textarea id="planTextarea" placeholder="Unesite godišnji plan čitanja za ovaj datum..."></textarea>
+        <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="planSaveStatus" class="status"></div>
         <div class="controls">
-          <button onclick="cancelEdit('plan')">Otkaži</button>
-          <button class="btn-main" onclick="saveTabContent('plan')">Sačuvaj</button>
+          <button id="planCancelBtn" onclick="cancelEdit('plan')">Otkaži</button>
+          <button id="planSaveBtn" class="btn-main" onclick="saveTabContent('plan')">Sačuvaj</button>
         </div>
       </div>
     </div>
@@ -167,17 +199,17 @@
       <div id="verseViewMode">
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button class="btn-purple" onclick="shareContent(verseDisplay.textContent)">📦 Podeli</button>
-          <button class="btn-main" onclick="enableEdit('verse')">⚙️ Uredi</button>
+          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.textContent)">📦 Podeli</button>
+          <button id="verseEditBtn" class="btn-main" onclick="enableEdit('verse')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="verseEditMode" class="hidden">
-        <textarea id="verseTextarea" placeholder="Unesite stih ohrabrenja za ovaj datum..."></textarea>
+        <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="verseSaveStatus" class="status"></div>
         <div class="controls">
-          <button onclick="cancelEdit('verse')">Otkaži</button>
-          <button class="btn-main" onclick="saveTabContent('verse')">Sačuvaj</button>
+          <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
+          <button id="verseSaveBtn" class="btn-main" onclick="saveTabContent('verse')">Sačuvaj</button>
         </div>
       </div>
     </div>
@@ -189,58 +221,114 @@
     const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Šifra za uređivanje
     const MOJA_SIFRA = '1234';
 
-    const datePicker = document.getElementById('datePicker');
+    let currentLang = 'sr';
     let currentTab = 'daily';
 
-    const today = new Date().toISOString().split('T')[0];
-    datePicker.value = today;
+    const translations = {
+      sr: {
+        appTitle: "Biblijsko Čitanje",
+        tabDaily: "📖 Dnevno Čitanje",
+        tabPlan: "📜 Godišnji Plan",
+        tabVerse: "💎 Stih Ohrabrenja",
+        share: "📦 Podeli",
+        edit: "⚙️ Uredi",
+        cancel: "Otkaži",
+        save: "Sačuvaj",
+        loading: "Učitavanje...",
+        saving: "Čuvanje...",
+        emptyDaily: "Nema unetog dnevnog čitanja za ovaj datum.",
+        emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
+        emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
+        placeholder: "Unesite tekst...",
+        promptPass: "Unesite šifru za uređivanje:",
+        wrongPass: "Pogrešna šifra!",
+        copied: "Tekst je kopiran u međuspremnik!"
+      },
+      en: {
+        appTitle: "Bible Reading",
+        tabDaily: "📖 Daily Reading",
+        tabPlan: "📜 Yearly Plan",
+        tabVerse: "💎 Encouraging Verse",
+        share: "📦 Share",
+        edit: "⚙️ Edit",
+        cancel: "Cancel",
+        save: "Save",
+        loading: "Loading...",
+        saving: "Saving...",
+        emptyDaily: "No daily reading added for this date.",
+        emptyPlan: "No yearly plan added for this date.",
+        emptyVerse: "No encouraging verse added for this date.",
+        placeholder: "Enter text...",
+        promptPass: "Enter edit PIN:",
+        wrongPass: "Incorrect PIN!",
+        copied: "Text copied to clipboard!"
+      }
+    };
 
-    // Promena aktivnog taba
+    const datePicker = document.getElementById('datePicker');
+    datePicker.value = new Date().toISOString().split('T')[0];
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      if (lang === 'sr') {
+        document.getElementById('langSrbBtn').classList.add('active');
+        document.getElementById('langEngBtn').classList.remove('active');
+      } else {
+        document.getElementById('langSrbBtn').classList.remove('active');
+        document.getElementById('langEngBtn').classList.add('active');
+      }
+      applyTranslations();
+      loadAllTabs();
+    }
+
+    function applyTranslations() {
+      const t = translations[currentLang];
+      document.getElementById('appTitle').textContent = t.appTitle;
+      document.getElementById('tabDailyBtn').textContent = t.tabDaily;
+      document.getElementById('tabPlanBtn').textContent = t.tabPlan;
+      document.getElementById('tabVerseBtn').textContent = t.tabVerse;
+
+      ['daily', 'plan', 'verse'].forEach(tab => {
+        document.getElementById(`${tab}ShareBtn`).textContent = t.share;
+        document.getElementById(`${tab}EditBtn`).textContent = t.edit;
+        document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
+        document.getElementById(`${tab}SaveBtn`).textContent = t.save;
+        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
+      });
+    }
+
     function switchTab(tab) {
       currentTab = tab;
-      
-      document.getElementById('dailySection').classList.add('hidden');
-      document.getElementById('planSection').classList.add('hidden');
-      document.getElementById('verseSection').classList.add('hidden');
+      ['daily', 'plan', 'verse'].forEach(t => {
+        document.getElementById(`${t}Section`).classList.add('hidden');
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
+      });
 
-      document.getElementById('tabDailyBtn').classList.remove('active');
-      document.getElementById('tabPlanBtn').classList.remove('active');
-      document.getElementById('tabVerseBtn').classList.remove('active');
-
-      if (tab === 'daily') {
-        document.getElementById('dailySection').classList.remove('hidden');
-        document.getElementById('tabDailyBtn').classList.add('active');
-      } else if (tab === 'plan') {
-        document.getElementById('planSection').classList.remove('hidden');
-        document.getElementById('tabPlanBtn').classList.add('active');
-      } else if (tab === 'verse') {
-        document.getElementById('verseSection').classList.remove('hidden');
-        document.getElementById('tabVerseBtn').classList.add('active');
-      }
+      document.getElementById(`${tab}Section`).classList.remove('hidden');
+      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
     }
 
-    // Određivanje baze podataka (ključ za Supabase)
     function getDbKey(tab, date) {
-      if (tab === 'daily') return date;
-      if (tab === 'plan') return `plan_${date}`;
-      if (tab === 'verse') return `stih_${date}`;
+      const prefix = currentLang === 'en' ? 'en_' : '';
+      if (tab === 'daily') return `${prefix}${date}`;
+      if (tab === 'plan') return `${prefix}plan_${date}`;
+      if (tab === 'verse') return `${prefix}stih_${date}`;
     }
 
-    // Učitavanje podataka za sve tabove za izabrani datum
     async function loadAllTabs() {
       const selectedDate = datePicker.value;
+      const t = translations[currentLang];
 
-      loadTabContent('daily', selectedDate, 'dailyDisplay', 'Nema unetog dnevnog čitanja za ovaj datum.');
-      loadTabContent('plan', selectedDate, 'planDisplay', 'Nema unetog godišnjeg plana za ovaj datum.');
-      loadTabContent('verse', selectedDate, 'verseDisplay', 'Nema unetog stiha ohrabrenja za ovaj datum.');
+      loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
+      loadTabContent('plan', selectedDate, 'planDisplay', t.emptyPlan);
+      loadTabContent('verse', selectedDate, 'verseDisplay', t.emptyVerse);
     }
 
     async function loadTabContent(tab, date, displayId, emptyText) {
       const displayElem = document.getElementById(displayId);
-      displayElem.textContent = "Učitavanje...";
+      displayElem.textContent = translations[currentLang].loading;
 
       const dbKey = getDbKey(tab, date);
 
@@ -250,7 +338,7 @@
         .eq('datum', dbKey)
         .maybeSingle();
 
-      if (error) console.error("Greška pri preuzimanju:", error);
+      if (error) console.error("Error fetching data:", error);
 
       if (data && data.tekst) {
         displayElem.textContent = data.tekst;
@@ -259,11 +347,11 @@
       }
     }
 
-    // Omogućavanje uređivanja
     function enableEdit(tab) {
-      const unetaSifra = prompt("Unesite šifru za uređivanje:");
+      const t = translations[currentLang];
+      const unetaSifra = prompt(t.promptPass);
       if (unetaSifra !== MOJA_SIFRA) {
-        alert("Pogrešna šifra! Samo administrator može uređivati tekst.");
+        alert(t.wrongPass);
         return;
       }
 
@@ -272,14 +360,13 @@
       const viewElem = document.getElementById(`${tab}ViewMode`);
       const editElem = document.getElementById(`${tab}EditMode`);
 
-      const currentText = displayElem.textContent.includes("Nema unetog") ? "" : displayElem.textContent;
+      const currentText = displayElem.textContent.includes("Nema unetog") || displayElem.textContent.includes("No ") ? "" : displayElem.textContent;
       textareaElem.value = currentText;
 
       viewElem.classList.add('hidden');
       editElem.classList.remove('hidden');
     }
 
-    // Čuvanje teksta u bazi
     async function saveTabContent(tab) {
       const selectedDate = datePicker.value;
       const dbKey = getDbKey(tab, selectedDate);
@@ -289,19 +376,20 @@
       const viewElem = document.getElementById(`${tab}ViewMode`);
       const editElem = document.getElementById(`${tab}EditMode`);
 
+      const t = translations[currentLang];
       const newText = textareaElem.value;
-      statusElem.textContent = "Čuvanje...";
+      statusElem.textContent = t.saving;
 
       const { error } = await _supabase
         .from('citanja')
         .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
 
       if (error) {
-        alert("Greška pri čuvanju: " + error.message);
+        alert("Error: " + error.message);
         statusElem.textContent = "";
       } else {
         statusElem.textContent = "";
-        displayElem.textContent = newText || "Nema unetog teksta za ovaj datum.";
+        displayElem.textContent = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : t.emptyVerse);
         editElem.classList.add('hidden');
         viewElem.classList.remove('hidden');
       }
@@ -320,19 +408,20 @@
     }
 
     function shareContent(textToShare) {
+      const t = translations[currentLang];
       if (navigator.share) {
         navigator.share({
-          title: 'Biblijsko Čitanje',
+          title: t.appTitle,
           text: textToShare,
           url: window.location.href
         }).catch(() => {});
       } else {
         navigator.clipboard.writeText(textToShare);
-        alert("Tekst je kopiran u međuspremnik!");
+        alert(t.copied);
       }
     }
 
-    // Inicijalno učitavanje
+    applyTranslations();
     loadAllTabs();
   </script>
 </body>
