@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dnevno Čitanje</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Dnevno Čitanje & Plan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,6 +26,27 @@
       text-align: center;
       color: #333;
       margin-top: 0;
+    }
+    .tab-navigation {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      border: 2px solid #3498db;
+      background-color: white;
+      color: #3498db;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .tab-btn.active {
+      background-color: #3498db;
+      color: white;
     }
     .date-navigation {
       display: flex;
@@ -91,38 +112,67 @@
 <body>
 
   <div class="container">
-    <h1>📖 Dnevno Čitanje</h1>
-
-    <div class="date-navigation">
-      <button class="btn-main" onclick="changeDate(-1)">◀</button>
-      <input type="date" id="datePicker" onchange="loadContent()">
-      <button class="btn-main" onclick="changeDate(1)">▶</button>
+    <!-- Navigacija između tabova -->
+    <div class="tab-navigation">
+      <button id="tabDailyBtn" class="tab-btn active" onclick="switchTab('daily')">📖 Dnevno Čitanje</button>
+      <button id="tabPlanBtn" class="tab-btn" onclick="switchTab('plan')">📜 Godišnji Plan</button>
     </div>
 
-    <div id="viewMode">
-      <div id="contentDisplay" class="display-area">Učitavanje...</div>
-      <div class="controls">
-        <button class="btn-purple" onclick="shareContent()">📦 Podeli</button>
-        <button class="btn-main" onclick="enableEdit()">⚙️ Uredi</button>
+    <!-- PROZOR 1: Dnevno čitanje -->
+    <div id="dailySection">
+      <div class="date-navigation">
+        <button class="btn-main" onclick="changeDate(-1)">◀</button>
+        <input type="date" id="datePicker" onchange="loadContent()">
+        <button class="btn-main" onclick="changeDate(1)">▶</button>
+      </div>
+
+      <div id="viewMode">
+        <div id="contentDisplay" class="display-area">Učitavanje...</div>
+        <div class="controls">
+          <button class="btn-purple" onclick="shareContent(contentDisplay.textContent)">📦 Podeli</button>
+          <button class="btn-main" onclick="enableEdit()">⚙️ Uredi</button>
+        </div>
+      </div>
+
+      <div id="editMode" class="hidden">
+        <textarea id="contentTextarea" placeholder="Unesite tekst za izabrani datum..."></textarea>
+        <div id="saveStatus" class="status"></div>
+        <div class="controls">
+          <button onclick="cancelEdit()">Otkaži</button>
+          <button class="btn-main" onclick="saveContent()">Sačuvaj</button>
+        </div>
       </div>
     </div>
 
-    <div id="editMode" class="hidden">
-      <textarea id="contentTextarea" placeholder="Unesite tekst za izabrani datum..."></textarea>
-      <div id="saveStatus" class="status"></div>
-      <div class="controls">
-        <button onclick="cancelEdit()">Otkaži</button>
-        <button class="btn-main" onclick="saveContent()">Sačuvaj</button>
+    <!-- PROZOR 2: Godišnji plan čitanja Biblije -->
+    <div id="planSection" class="hidden">
+      <h1>📜 Godišnji plan čitanja Biblije</h1>
+
+      <div id="planViewMode">
+        <div id="planDisplay" class="display-area">Učitavanje...</div>
+        <div class="controls">
+          <button class="btn-purple" onclick="shareContent(planDisplay.textContent)">📦 Podeli</button>
+          <button class="btn-main" onclick="enablePlanEdit()">⚙️ Uredi Plan</button>
+        </div>
+      </div>
+
+      <div id="planEditMode" class="hidden">
+        <textarea id="planTextarea" placeholder="Unesite godišnji plan čitanja Biblije..."></textarea>
+        <div id="planSaveStatus" class="status"></div>
+        <div class="controls">
+          <button onclick="cancelPlanEdit()">Otkaži</button>
+          <button class="btn-main" onclick="savePlanContent()">Sačuvaj Plan</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_oDohLHeSQV3xT2Kz-1ZA8A_jyMHj_8D';
+    const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // POSTAVI SVOJU ŠIFRU OVDE za uređivanje (zameni 1234 svojom šifrom)
+    // Šifra za uređivanje
     const MOJA_SIFRA = '1234';
 
     const datePicker = document.getElementById('datePicker');
@@ -132,9 +182,32 @@
     const editMode = document.getElementById('editMode');
     const saveStatus = document.getElementById('saveStatus');
 
+    const planDisplay = document.getElementById('planDisplay');
+    const planTextarea = document.getElementById('planTextarea');
+    const planViewMode = document.getElementById('planViewMode');
+    const planEditMode = document.getElementById('planEditMode');
+    const planSaveStatus = document.getElementById('planSaveStatus');
+
     const today = new Date().toISOString().split('T')[0];
     datePicker.value = today;
 
+    // Promena taba (Dnevno čitanje / Godišnji plan)
+    function switchTab(tab) {
+      if (tab === 'daily') {
+        document.getElementById('dailySection').classList.remove('hidden');
+        document.getElementById('planSection').classList.add('hidden');
+        document.getElementById('tabDailyBtn').classList.add('active');
+        document.getElementById('tabPlanBtn').classList.remove('active');
+      } else {
+        document.getElementById('dailySection').classList.add('hidden');
+        document.getElementById('planSection').classList.remove('hidden');
+        document.getElementById('tabDailyBtn').classList.remove('active');
+        document.getElementById('tabPlanBtn').classList.add('active');
+        loadPlanContent();
+      }
+    }
+
+    // --- LOGIKA ZA DNEVNO ČITANJE ---
     async function loadContent() {
       const selectedDate = datePicker.value;
       contentDisplay.textContent = "Učitavanje...";
@@ -143,11 +216,9 @@
         .from('citanja')
         .select('tekst')
         .eq('datum', selectedDate)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error("Greška pri preuzimanju:", error);
-      }
+      if (error) console.error("Greška pri preuzimanju:", error);
 
       if (data && data.tekst) {
         contentDisplay.textContent = data.tekst;
@@ -201,15 +272,72 @@
       viewMode.classList.remove('hidden');
     }
 
-    function shareContent() {
+    // --- LOGIKA ZA GODIŠNJI PLAN ---
+    async function loadPlanContent() {
+      planDisplay.textContent = "Učitavanje plana...";
+
+      const { data, error } = await _supabase
+        .from('citanja')
+        .select('tekst')
+        .eq('datum', 'godisnji_plan')
+        .maybeSingle();
+
+      if (error) console.error("Greška pri preuzimanju plana:", error);
+
+      if (data && data.tekst) {
+        planDisplay.textContent = data.tekst;
+      } else {
+        planDisplay.textContent = "Godišnji plan čitanja još uvek nije unet. Kliknite na '⚙️ Uredi Plan' da ga dodate.";
+      }
+    }
+
+    function enablePlanEdit() {
+      const unetaSifra = prompt("Unesite šifru za uređivanje plana:");
+      if (unetaSifra !== MOJA_SIFRA) {
+        alert("Pogrešna šifra!");
+        return;
+      }
+
+      const currentText = planDisplay.textContent.includes("Godišnji plan čitanja još uvek nije unet") ? "" : planDisplay.textContent;
+      planTextarea.value = currentText;
+      planViewMode.classList.add('hidden');
+      planEditMode.classList.remove('hidden');
+    }
+
+    async function savePlanContent() {
+      const newText = planTextarea.value;
+      planSaveStatus.textContent = "Čuvanje...";
+
+      const { error } = await _supabase
+        .from('citanja')
+        .upsert({ datum: 'godisnji_plan', tekst: newText }, { onConflict: 'datum' });
+
+      if (error) {
+        alert("Greška pri čuvanju: " + error.message);
+        planSaveStatus.textContent = "";
+      } else {
+        planSaveStatus.textContent = "";
+        planDisplay.textContent = newText || "Godišnji plan čitanja još uvek nije unet.";
+        planEditMode.classList.add('hidden');
+        planViewMode.classList.remove('hidden');
+      }
+    }
+
+    function cancelPlanEdit() {
+      planEditMode.classList.add('hidden');
+      planViewMode.classList.remove('hidden');
+    }
+
+    // Sharing funkcija
+    function shareContent(textToShare) {
       if (navigator.share) {
         navigator.share({
-          title: 'Dnevno Čitanje',
-          text: contentDisplay.textContent,
+          title: 'Biblijsko Čitanje',
+          text: textToShare,
           url: window.location.href
         }).catch(() => {});
       } else {
-        navigator.clipboard.writeText(contentDisplay.textContent);
+        navigator.clipboard.writeText(textToShare);
         alert("Tekst je kopiran u međuspremnik!");
       }
     }
