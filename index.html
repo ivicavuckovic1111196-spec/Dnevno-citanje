@@ -300,7 +300,7 @@
         tabVerse: "💎 Encouraging Verse",
         tabQuote: "💡 Wise Sayings",
         share: "📦 Share",
-        edit: "⚙️ Edit",
+        edit: "Edit",
         cancel: "Cancel",
         save: "Save",
         loading: "Loading...",
@@ -364,15 +364,25 @@
       document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
     }
 
-    // Ekstrahuje samo MM-DD iz izabranog datuma (ignoriše godinu)
-    function getDbKey(tab, dateStr) {
-      const monthDay = dateStr.slice(5); // uzima samo "MM-DD" iz "YYYY-MM-DD"
+    // Nov sistem (samo mesec-dan)
+    function getNewDbKey(tab, dateStr) {
+      const monthDay = dateStr.slice(5);
       const prefix = currentLang === 'en' ? 'en_' : '';
 
       if (tab === 'daily') return `${prefix}${monthDay}`;
       if (tab === 'plan') return `${prefix}plan_${monthDay}`;
       if (tab === 'verse') return `${prefix}stih_${monthDay}`;
       if (tab === 'quote') return `${prefix}izreka_${monthDay}`;
+    }
+
+    // Stari sistem (puni datum sa godinom)
+    function getOldDbKey(tab, dateStr) {
+      const prefix = currentLang === 'en' ? 'en_' : '';
+
+      if (tab === 'daily') return `${prefix}${dateStr}`;
+      if (tab === 'plan') return `${prefix}plan_${dateStr}`;
+      if (tab === 'verse') return `${prefix}stih_${dateStr}`;
+      if (tab === 'quote') return `${prefix}izreka_${dateStr}`;
     }
 
     async function loadAllTabs() {
@@ -389,15 +399,28 @@
       const displayElem = document.getElementById(displayId);
       displayElem.textContent = translations[currentLang].loading;
 
-      const dbKey = getDbKey(tab, date);
+      const newKey = getNewDbKey(tab, date);
+      const oldKey = getOldDbKey(tab, date);
 
-      const { data, error } = await _supabase
+      // Prvo tražimo po novom sistemu (bez godine)
+      let { data, error } = await _supabase
         .from('citanja')
         .select('tekst')
-        .eq('datum', dbKey)
+        .eq('datum', newKey)
         .maybeSingle();
 
-      if (error) console.error("Error fetching data:", error);
+      // Ako nema pod novim ključem, tražimo pod starim ključem (sa godinom)
+      if (!data || !data.tekst) {
+        const oldRes = await _supabase
+          .from('citanja')
+          .select('tekst')
+          .eq('datum', oldKey)
+          .maybeSingle();
+        
+        if (oldRes.data && oldRes.data.tekst) {
+          data = oldRes.data;
+        }
+      }
 
       if (data && data.tekst) {
         displayElem.textContent = data.tekst;
@@ -428,7 +451,7 @@
 
     async function saveTabContent(tab) {
       const selectedDate = datePicker.value;
-      const dbKey = getDbKey(tab, selectedDate);
+      const dbKey = getNewDbKey(tab, selectedDate);
       const textareaElem = document.getElementById(`${tab}Textarea`);
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
