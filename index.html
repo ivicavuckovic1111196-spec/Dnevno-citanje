@@ -364,12 +364,15 @@
       document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
     }
 
-    function getDbKey(tab, date) {
+    // Ekstrahuje samo MM-DD iz izabranog datuma (ignoriše godinu)
+    function getDbKey(tab, dateStr) {
+      const monthDay = dateStr.slice(5); // uzima samo "MM-DD" iz "YYYY-MM-DD"
       const prefix = currentLang === 'en' ? 'en_' : '';
-      if (tab === 'daily') return `${prefix}${date}`;
-      if (tab === 'plan') return `${prefix}plan_${date}`;
-      if (tab === 'verse') return `${prefix}stih_${date}`;
-      if (tab === 'quote') return `${prefix}izreka_${date}`;
+
+      if (tab === 'daily') return `${prefix}${monthDay}`;
+      if (tab === 'plan') return `${prefix}plan_${monthDay}`;
+      if (tab === 'verse') return `${prefix}stih_${monthDay}`;
+      if (tab === 'quote') return `${prefix}izreka_${monthDay}`;
     }
 
     async function loadAllTabs() {
