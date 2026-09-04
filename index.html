@@ -349,7 +349,12 @@
     };
 
     const datePicker = document.getElementById('datePicker');
-    datePicker.value = new Date().toISOString().split('T')[0];
+    
+    // Postavljanje tekućeg datuma
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    datePicker.value = `${d.getFullYear()}-${month}-${day}`;
 
     function makeItalic(textareaId) {
       const txtArea = document.getElementById(textareaId);
@@ -408,27 +413,25 @@
       document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
     }
 
-    function getNewDbKey(tab, dateStr) {
-      const monthDay = dateStr.slice(5);
+    function getKeysToSearch(tab, dateStr) {
+      const monthDay = dateStr.length > 5 ? dateStr.slice(5) : dateStr;
       const prefix = currentLang === 'en' ? 'en_' : '';
+      let base = '';
 
-      if (tab === 'daily') return `${prefix}${monthDay}`;
-      if (tab === 'plan') return `${prefix}plan_${monthDay}`;
-      if (tab === 'verse') return `${prefix}stih_${monthDay}`;
-      if (tab === 'quote') return `${prefix}izreka_${monthDay}`;
-    }
+      if (tab === 'plan') base = 'plan_';
+      if (tab === 'verse') base = 'stih_';
+      if (tab === 'quote') base = 'izreka_';
 
-    function getOldDbKey(tab, dateStr) {
-      const prefix = currentLang === 'en' ? 'en_' : '';
-
-      if (tab === 'daily') return `${prefix}${dateStr}`;
-      if (tab === 'plan') return `${prefix}plan_${dateStr}`;
-      if (tab === 'verse') return `${prefix}stih_${dateStr}`;
-      if (tab === 'quote') return `${prefix}izreka_${dateStr}`;
+      return [
+        `${prefix}${base}${monthDay}`, // Format MM-DD
+        `${prefix}${base}${dateStr}`   // Format YYYY-MM-DD
+      ];
     }
 
     async function loadAllTabs() {
       const selectedDate = datePicker.value;
+      if (!selectedDate) return;
+
       const t = translations[currentLang];
 
       loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
@@ -441,29 +444,15 @@
       const displayElem = document.getElementById(displayId);
       displayElem.innerHTML = translations[currentLang].loading;
 
-      const newKey = getNewDbKey(tab, date);
-      const oldKey = getOldDbKey(tab, date);
+      const keys = getKeysToSearch(tab, date);
 
-      let { data, error } = await _supabase
+      const { data } = await _supabase
         .from('citanja')
         .select('tekst')
-        .eq('datum', newKey)
-        .maybeSingle();
+        .in('datum', keys);
 
-      if (!data || !data.tekst) {
-        const oldRes = await _supabase
-          .from('citanja')
-          .select('tekst')
-          .eq('datum', oldKey)
-          .maybeSingle();
-        
-        if (oldRes.data && oldRes.data.tekst) {
-          data = oldRes.data;
-        }
-      }
-
-      if (data && data.tekst) {
-        displayElem.innerHTML = data.tekst;
+      if (data && data.length > 0 && data[0].tekst) {
+        displayElem.innerHTML = data[0].tekst;
       } else {
         displayElem.innerHTML = emptyText;
       }
@@ -491,7 +480,9 @@
 
     async function saveTabContent(tab) {
       const selectedDate = datePicker.value;
-      const dbKey = getNewDbKey(tab, selectedDate);
+      const keys = getKeysToSearch(tab, selectedDate);
+      const dbKey = keys[0]; // Snima se u MM-DD formatu radi kompatibilnosti svake godine
+
       const textareaElem = document.getElementById(`${tab}Textarea`);
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
@@ -507,7 +498,7 @@
         .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
 
       if (error) {
-        alert("Error: " + error.message);
+        alert("Greška: " + error.message);
         statusElem.textContent = "";
       } else {
         statusElem.textContent = "";
@@ -523,9 +514,15 @@
     }
 
     function changeDate(days) {
-      const currentDate = new Date(datePicker.value);
+      const parts = datePicker.value.split('-');
+      const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
       currentDate.setDate(currentDate.getDate() + days);
-      datePicker.value = currentDate.toISOString().split('T')[0];
+
+      const yyyy = currentDate.getFullYear();
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(currentDate.getDate()).padStart(2, '0');
+      datePicker.value = `${yyyy}-${mm}-${dd}`;
+
       loadAllTabs();
     }
 
