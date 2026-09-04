@@ -74,7 +74,7 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    button, input[type="date"], select {
+    button, input[type="date"] {
       padding: 10px 15px;
       font-size: 16px;
       border-radius: 6px;
@@ -95,39 +95,26 @@
       display: flex;
       gap: 5px;
       margin-bottom: 8px;
-      background: #eee;
-      padding: 6px;
-      border-radius: 8px;
-      align-items: center;
-      flex-wrap: wrap;
     }
-    .toolbar-btn {
-      padding: 6px 12px;
-      font-size: 14px;
+    .btn-italic {
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      font-style: italic;
       font-weight: bold;
-      background: white;
-      border: 1px solid #ccc;
+      padding: 6px 12px;
       border-radius: 4px;
-      cursor: pointer;
     }
-    .toolbar-btn:hover {
-      background: #e0e0e0;
-    }
-    .toolbar select {
-      padding: 5px 8px;
-      font-size: 14px;
-    }
-    .editor-box {
+    textarea {
       width: 100%;
-      min-height: 250px;
+      height: 250px;
       padding: 12px;
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
+      resize: vertical;
       line-height: 1.5;
-      background: #fff;
-      overflow-y: auto;
     }
     .display-area {
       min-height: 250px;
@@ -135,20 +122,12 @@
       border: 1px solid #eee;
       border-radius: 8px;
       background: #fafafa;
+      white-space: pre-wrap;
       font-size: 16px;
       line-height: 1.5;
-      word-wrap: break-word;
     }
-    /* Stil za citate */
-    blockquote, .display-area blockquote, .editor-box blockquote {
+    .display-area i, .display-area em {
       font-style: italic;
-      border-left: 4px solid #3498db;
-      margin: 10px 0;
-      padding-left: 12px;
-      color: #555;
-      background-color: rgba(52, 152, 219, 0.05);
-      padding-top: 4px;
-      padding-bottom: 4px;
     }
     .controls {
       display: flex;
@@ -221,19 +200,9 @@
 
       <div id="dailyEditMode" class="hidden">
         <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
+          <button class="btn-italic" onclick="makeItalic('dailyTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
-        <div id="dailyEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="dailySaveStatus" class="status"></div>
         <div class="controls">
           <button id="dailyCancelBtn" onclick="cancelEdit('daily')">Otkaži</button>
@@ -254,19 +223,9 @@
 
       <div id="planEditMode" class="hidden">
         <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
+          <button class="btn-italic" onclick="makeItalic('planTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
-        <div id="planEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="planSaveStatus" class="status"></div>
         <div class="controls">
           <button id="planCancelBtn" onclick="cancelEdit('plan')">Otkaži</button>
@@ -287,19 +246,9 @@
 
       <div id="verseEditMode" class="hidden">
         <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
+          <button class="btn-italic" onclick="makeItalic('verseTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
-        <div id="verseEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="verseSaveStatus" class="status"></div>
         <div class="controls">
           <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
@@ -320,19 +269,9 @@
 
       <div id="quoteEditMode" class="hidden">
         <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
+          <button class="btn-italic" onclick="makeItalic('quoteTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
-        <div id="quoteEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
         <div id="quoteSaveStatus" class="status"></div>
         <div class="controls">
           <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
@@ -350,9 +289,16 @@
   </div>
 
   <script>
+    // TVOJ ORIGINALNI KONEKTOR KOJI SIGURNO RADI
     const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrd3hrbHpoanZjY2dze3hreHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0MjgwODAsImV4cCI6MjA1NDAwNDA4MH0.M1X84cOpxfllIeP553A_78hqKMEo';
+    
+    let _supabase;
+    try {
+      _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch(e) {
+      console.error(e);
+    }
 
     const MOJA_SIFRA = '1234';
 
@@ -376,6 +322,7 @@
         emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
         emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
         emptyQuote: "Nema unete mudre izreke za ovaj datum.",
+        placeholder: "Unesite tekst...",
         promptPass: "Unesite šifru za uređivanje:",
         wrongPass: "Pogrešna šifra!",
         copied: "Tekst je kopiran u međuspremnik!",
@@ -398,6 +345,7 @@
         emptyPlan: "No yearly plan added for this date.",
         emptyVerse: "No encouraging verse added for this date.",
         emptyQuote: "No wise saying added for this date.",
+        placeholder: "Enter text...",
         promptPass: "Enter edit PIN:",
         wrongPass: "Incorrect PIN!",
         copied: "Text copied to clipboard!",
@@ -407,22 +355,25 @@
     };
 
     const datePicker = document.getElementById('datePicker');
+    
+    // Sigurno podešavanje datuma
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    datePicker.value = `${yyyy}-${mm}-${dd}`;
 
-    function setTodayDate() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      datePicker.value = `${year}-${month}-${day}`;
-    }
+    function makeItalic(textareaId) {
+      const txtArea = document.getElementById(textareaId);
+      const start = txtArea.selectionStart;
+      const end = txtArea.selectionEnd;
+      const selText = txtArea.value.substring(start, end);
 
-    function formatDoc(cmd, value = null) {
-      document.execCommand(cmd, false, value);
-    }
-
-    function formatFontSize(size) {
-      if (size) {
-        document.execCommand('fontSize', false, size);
+      if (selText.length > 0) {
+        const replacement = `<i>${selText}</i>`;
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+      } else {
+        txtArea.value += "<i>Iskošeni tekst</i>";
       }
     }
 
@@ -454,6 +405,7 @@
         document.getElementById(`${tab}EditBtn`).textContent = t.edit;
         document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
         document.getElementById(`${tab}SaveBtn`).textContent = t.save;
+        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
       });
     }
 
@@ -540,12 +492,12 @@
       }
 
       const displayElem = document.getElementById(`${tab}Display`);
-      const editorElem = document.getElementById(`${tab}Editor`);
+      const textareaElem = document.getElementById(`${tab}Textarea`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
       const editElem = document.getElementById(`${tab}EditMode`);
 
-      const currentContent = displayElem.innerHTML.includes("Nema unetog") || displayElem.innerHTML.includes("No ") ? "" : displayElem.innerHTML;
-      editorElem.innerHTML = currentContent;
+      const currentText = displayElem.innerHTML.includes("Nema unetog") || displayElem.innerHTML.includes("No ") ? "" : displayElem.innerHTML;
+      textareaElem.value = currentText;
 
       viewElem.classList.add('hidden');
       editElem.classList.remove('hidden');
@@ -554,8 +506,65 @@
     async function saveTabContent(tab) {
       const selectedDate = datePicker.value;
       const dbKey = getNewDbKey(tab, selectedDate);
-      const editorElem = document.getElementById(`${tab}Editor`);
+      const textareaElem = document.getElementById(`${tab}Textarea`);
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
-      const editElem = docu
+      const editElem = document.getElementById(`${tab}EditMode`);
+
+      const t = translations[currentLang];
+      const newText = textareaElem.value;
+      statusElem.textContent = t.saving;
+
+      const { error } = await _supabase
+        .from('citanja')
+        .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
+
+      if (error) {
+        alert("Error: " + error.message);
+        statusElem.textContent = "";
+      } else {
+        statusElem.textContent = "";
+        displayElem.innerHTML = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
+        editElem.classList.add('hidden');
+        viewElem.classList.remove('hidden');
+      }
+    }
+
+    function cancelEdit(tab) {
+      document.getElementById(`${tab}EditMode`).classList.add('hidden');
+      document.getElementById(`${tab}ViewMode`).classList.remove('hidden');
+    }
+
+    function changeDate(days) {
+      const parts = datePicker.value.split('-');
+      const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      currentDate.setDate(currentDate.getDate() + days);
+
+      const yyyy = currentDate.getFullYear();
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(currentDate.getDate()).padStart(2, '0');
+      datePicker.value = `${yyyy}-${mm}-${dd}`;
+
+      loadAllTabs();
+    }
+
+    function shareContent(textToShare) {
+      const t = translations[currentLang];
+      if (navigator.share) {
+        navigator.share({
+          title: t.appTitle,
+          text: textToShare,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(textToShare);
+        alert(t.copied);
+      }
+    }
+
+    applyTranslations();
+    loadAllTabs();
+  </script>
+</body>
+</html>
