@@ -4,7 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dnevno Čitanje & Plan</title>
+  
+  <!-- Primarni i rezervni uvoz za Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+  <script>
+    if (typeof supabase === 'undefined') {
+      document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"><\/script>');
+    }
+  </script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -337,8 +345,8 @@
   <script>
     const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+    
+    let _supabase = null;
     const MOJA_SIFRA = '1234';
 
     let currentLang = 'sr';
@@ -365,7 +373,8 @@
         wrongPass: "Pogrešna šifra!",
         copied: "Tekst je kopiran u međuspremnik!",
         author: "Autor: Ivica Vučković",
-        contact: "Kontakt:"
+        contact: "Kontakt:",
+        dbError: "Greška sa konekcijom do baze."
       },
       en: {
         appTitle: "Bible Reading",
@@ -387,7 +396,8 @@
         wrongPass: "Incorrect PIN!",
         copied: "Text copied to clipboard!",
         author: "Author: Ivica Vučković",
-        contact: "Contact:"
+        contact: "Contact:",
+        dbError: "Database connection error."
       }
     };
 
@@ -399,6 +409,12 @@
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
       datePicker.value = `${year}-${month}-${day}`;
+    }
+
+    function initSupabase() {
+      if (typeof supabase !== 'undefined') {
+        _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
     }
 
     function formatDoc(cmd, value = null) {
@@ -487,30 +503,43 @@
       const displayElem = document.getElementById(displayId);
       displayElem.innerHTML = translations[currentLang].loading;
 
+      if (!_supabase) {
+        initSupabase();
+      }
+
+      if (!_supabase) {
+        displayElem.innerHTML = emptyText;
+        return;
+      }
+
       const newKey = getNewDbKey(tab, date);
       const oldKey = getOldDbKey(tab, date);
 
-      let { data, error } = await _supabase
-        .from('citanja')
-        .select('tekst')
-        .eq('datum', newKey)
-        .maybeSingle();
-
-      if (!data || !data.tekst) {
-        const oldRes = await _supabase
+      try {
+        let { data, error } = await _supabase
           .from('citanja')
           .select('tekst')
-          .eq('datum', oldKey)
+          .eq('datum', newKey)
           .maybeSingle();
-        
-        if (oldRes.data && oldRes.data.tekst) {
-          data = oldRes.data;
-        }
-      }
 
-      if (data && data.tekst) {
-        displayElem.innerHTML = data.tekst;
-      } else {
+        if (!data || !data.tekst) {
+          const oldRes = await _supabase
+            .from('citanja')
+            .select('tekst')
+            .eq('datum', oldKey)
+            .maybeSingle();
+          
+          if (oldRes.data && oldRes.data.tekst) {
+            data = oldRes.data;
+          }
+        }
+
+        if (data && data.tekst) {
+          displayElem.innerHTML = data.tekst;
+        } else {
+          displayElem.innerHTML = emptyText;
+        }
+      } catch (err) {
         displayElem.innerHTML = emptyText;
       }
     }
@@ -542,26 +571,4 @@
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
-      const editElem = document.getElementById(`${tab}EditMode`);
-
-      const t = translations[currentLang];
-      const newText = editorElem.innerHTML;
-      statusElem.textContent = t.saving;
-
-      const { error } = await _supabase
-        .from('citanja')
-        .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
-
-      if (error) {
-        alert("Error: " + error.message);
-        statusElem.textContent = "";
-      } else {
-        statusElem.textContent = "";
-        displayElem.innerHTML = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
-        editElem.classList.add('hidden');
-        viewElem.classList.remove('hidden');
-      }
-    }
-
-    function cancelEdit(tab) {
-     
+      const editElem = document.getElementByI
