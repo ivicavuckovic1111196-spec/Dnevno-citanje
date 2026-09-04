@@ -96,6 +96,15 @@
       gap: 5px;
       margin-bottom: 8px;
     }
+    .btn-bold {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     .btn-italic {
       background-color: #f39c12;
       color: white;
@@ -126,6 +135,9 @@
       white-space: pre-wrap;
       font-size: 16px;
       line-height: 1.5;
+    }
+    .display-area b, .display-area strong {
+      font-weight: bold;
     }
     .display-area i, .display-area em {
       font-style: italic;
@@ -201,6 +213,7 @@
 
       <div id="dailyEditMode" class="hidden">
         <div class="toolbar">
+          <button class="btn-bold" onclick="makeBold('dailyTextarea')"><b>B</b> Podebljano (Bold)</button>
           <button class="btn-italic" onclick="makeItalic('dailyTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
         <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
@@ -224,6 +237,7 @@
 
       <div id="planEditMode" class="hidden">
         <div class="toolbar">
+          <button class="btn-bold" onclick="makeBold('planTextarea')"><b>B</b> Podebljano (Bold)</button>
           <button class="btn-italic" onclick="makeItalic('planTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
         <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
@@ -247,6 +261,7 @@
 
       <div id="verseEditMode" class="hidden">
         <div class="toolbar">
+          <button class="btn-bold" onclick="makeBold('verseTextarea')"><b>B</b> Podebljano (Bold)</button>
           <button class="btn-italic" onclick="makeItalic('verseTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
         <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
@@ -270,6 +285,7 @@
 
       <div id="quoteEditMode" class="hidden">
         <div class="toolbar">
+          <button class="btn-bold" onclick="makeBold('quoteTextarea')"><b>B</b> Podebljano (Bold)</button>
           <button class="btn-italic" onclick="makeItalic('quoteTextarea')"><i>I</i> Iskošeno (Italic)</button>
         </div>
         <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
@@ -355,6 +371,20 @@
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     datePicker.value = `${d.getFullYear()}-${month}-${day}`;
+
+    function makeBold(textareaId) {
+      const txtArea = document.getElementById(textareaId);
+      const start = txtArea.selectionStart;
+      const end = txtArea.selectionEnd;
+      const selText = txtArea.value.substring(start, end);
+
+      if (selText.length > 0) {
+        const replacement = `<b>${selText}</b>`;
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+      } else {
+        txtArea.value += "<b>Podebljani tekst</b>";
+      }
+    }
 
     function makeItalic(textareaId) {
       const txtArea = document.getElementById(textareaId);
