@@ -139,6 +139,17 @@
       line-height: 1.5;
       word-wrap: break-word;
     }
+    /* Stil za citate */
+    blockquote, .display-area blockquote, .editor-box blockquote {
+      font-style: italic;
+      border-left: 4px solid #3498db;
+      margin: 10px 0;
+      padding-left: 12px;
+      color: #555;
+      background-color: rgba(52, 152, 219, 0.05);
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
     .controls {
       display: flex;
       justify-content: flex-end;
@@ -213,6 +224,7 @@
           <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
           <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
           <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
           <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
             <option value="" disabled selected>Veličina slova</option>
             <option value="2">Malo</option>
@@ -245,6 +257,7 @@
           <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
           <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
           <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
           <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
             <option value="" disabled selected>Veličina slova</option>
             <option value="2">Malo</option>
@@ -277,6 +290,7 @@
           <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
           <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
           <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
           <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
             <option value="" disabled selected>Veličina slova</option>
             <option value="2">Malo</option>
@@ -309,6 +323,7 @@
           <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
           <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
           <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <button class="toolbar-btn" onclick="formatDoc('formatBlock', 'blockquote')">💬 Citat</button>
           <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
             <option value="" disabled selected>Veličina slova</option>
             <option value="2">Malo</option>
@@ -543,26 +558,4 @@
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
-      const editElem = document.getElementById(`${tab}EditMode`);
-
-      const t = translations[currentLang];
-      const newText = editorElem.innerHTML;
-      statusElem.textContent = t.saving;
-
-      const { error } = await _supabase
-        .from('citanja')
-        .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
-
-      if (error) {
-        alert("Error: " + error.message);
-        statusElem.textContent = "";
-      } else {
-        statusElem.textContent = "";
-        displayElem.innerHTML = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
-        editElem.classList.add('hidden');
-        viewElem.classList.remove('hidden');
-      }
-    }
-
-    function cancelEdit(tab) {
-    
+      const editElem = docu
