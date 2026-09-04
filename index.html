@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Devotional & Dnevno Čitanje </title>
+  <title>Dnevno Čitanje & Plan</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
   <style>
     body {
@@ -74,7 +74,7 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    button, input[type="date"] {
+    button, input[type="date"], select {
       padding: 10px 15px;
       font-size: 16px;
       border-radius: 6px;
@@ -91,16 +91,43 @@
       color: white;
       border: none;
     }
-    textarea {
+    .toolbar {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 8px;
+      background: #eee;
+      padding: 6px;
+      border-radius: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .toolbar-btn:hover {
+      background: #e0e0e0;
+    }
+    .toolbar select {
+      padding: 5px 8px;
+      font-size: 14px;
+    }
+    .editor-box {
       width: 100%;
-      height: 250px;
+      min-height: 250px;
       padding: 12px;
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
-      resize: vertical;
       line-height: 1.5;
+      background: #fff;
+      overflow-y: auto;
     }
     .display-area {
       min-height: 250px;
@@ -108,9 +135,9 @@
       border: 1px solid #eee;
       border-radius: 8px;
       background: #fafafa;
-      white-space: pre-wrap;
       font-size: 16px;
       line-height: 1.5;
+      word-wrap: break-word;
     }
     .controls {
       display: flex;
@@ -176,13 +203,25 @@
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.textContent)">📦 Podeli</button>
+          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.innerText)">📦 Podeli</button>
           <button id="dailyEditBtn" class="btn-main" onclick="enableEdit('daily')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="dailyEditMode" class="hidden">
-        <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
+          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
+          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Veličina slova</option>
+            <option value="2">Malo</option>
+            <option value="3">Normalno</option>
+            <option value="5">Veliko</option>
+            <option value="6">Veoma veliko</option>
+          </select>
+        </div>
+        <div id="dailyEditor" class="editor-box" contenteditable="true"></div>
         <div id="dailySaveStatus" class="status"></div>
         <div class="controls">
           <button id="dailyCancelBtn" onclick="cancelEdit('daily')">Otkaži</button>
@@ -196,13 +235,25 @@
       <div id="planViewMode">
         <div id="planDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.textContent)">📦 Podeli</button>
+          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.innerText)">📦 Podeli</button>
           <button id="planEditBtn" class="btn-main" onclick="enableEdit('plan')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="planEditMode" class="hidden">
-        <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
+          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
+          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Veličina slova</option>
+            <option value="2">Malo</option>
+            <option value="3">Normalno</option>
+            <option value="5">Veliko</option>
+            <option value="6">Veoma veliko</option>
+          </select>
+        </div>
+        <div id="planEditor" class="editor-box" contenteditable="true"></div>
         <div id="planSaveStatus" class="status"></div>
         <div class="controls">
           <button id="planCancelBtn" onclick="cancelEdit('plan')">Otkaži</button>
@@ -216,13 +267,25 @@
       <div id="verseViewMode">
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.textContent)">📦 Podeli</button>
+          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.innerText)">📦 Podeli</button>
           <button id="verseEditBtn" class="btn-main" onclick="enableEdit('verse')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="verseEditMode" class="hidden">
-        <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
+          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
+          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Veličina slova</option>
+            <option value="2">Malo</option>
+            <option value="3">Normalno</option>
+            <option value="5">Veliko</option>
+            <option value="6">Veoma veliko</option>
+          </select>
+        </div>
+        <div id="verseEditor" class="editor-box" contenteditable="true"></div>
         <div id="verseSaveStatus" class="status"></div>
         <div class="controls">
           <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
@@ -236,13 +299,25 @@
       <div id="quoteViewMode">
         <div id="quoteDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.textContent)">📦 Podeli</button>
+          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.innerText)">📦 Podeli</button>
           <button id="quoteEditBtn" class="btn-main" onclick="enableEdit('quote')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="quoteEditMode" class="hidden">
-        <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
+          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
+          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
+          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
+            <option value="" disabled selected>Veličina slova</option>
+            <option value="2">Malo</option>
+            <option value="3">Normalno</option>
+            <option value="5">Veliko</option>
+            <option value="6">Veoma veliko</option>
+          </select>
+        </div>
+        <div id="quoteEditor" class="editor-box" contenteditable="true"></div>
         <div id="quoteSaveStatus" class="status"></div>
         <div class="controls">
           <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
@@ -286,7 +361,6 @@
         emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
         emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
         emptyQuote: "Nema unete mudre izreke za ovaj datum.",
-        placeholder: "Unesite tekst...",
         promptPass: "Unesite šifru za uređivanje:",
         wrongPass: "Pogrešna šifra!",
         copied: "Tekst je kopiran u međuspremnik!",
@@ -309,7 +383,6 @@
         emptyPlan: "No yearly plan added for this date.",
         emptyVerse: "No encouraging verse added for this date.",
         emptyQuote: "No wise saying added for this date.",
-        placeholder: "Enter text...",
         promptPass: "Enter edit PIN:",
         wrongPass: "Incorrect PIN!",
         copied: "Text copied to clipboard!",
@@ -320,6 +393,16 @@
 
     const datePicker = document.getElementById('datePicker');
     datePicker.value = new Date().toISOString().split('T')[0];
+
+    function formatDoc(cmd, value = null) {
+      document.execCommand(cmd, false, value);
+    }
+
+    function formatFontSize(size) {
+      if (size) {
+        document.execCommand('fontSize', false, size);
+      }
+    }
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -349,7 +432,6 @@
         document.getElementById(`${tab}EditBtn`).textContent = t.edit;
         document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
         document.getElementById(`${tab}SaveBtn`).textContent = t.save;
-        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
       });
     }
 
@@ -364,7 +446,6 @@
       document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
     }
 
-    // Nov sistem (samo mesec-dan)
     function getNewDbKey(tab, dateStr) {
       const monthDay = dateStr.slice(5);
       const prefix = currentLang === 'en' ? 'en_' : '';
@@ -375,7 +456,6 @@
       if (tab === 'quote') return `${prefix}izreka_${monthDay}`;
     }
 
-    // Stari sistem (puni datum sa godinom)
     function getOldDbKey(tab, dateStr) {
       const prefix = currentLang === 'en' ? 'en_' : '';
 
@@ -397,19 +477,17 @@
 
     async function loadTabContent(tab, date, displayId, emptyText) {
       const displayElem = document.getElementById(displayId);
-      displayElem.textContent = translations[currentLang].loading;
+      displayElem.innerHTML = translations[currentLang].loading;
 
       const newKey = getNewDbKey(tab, date);
       const oldKey = getOldDbKey(tab, date);
 
-      // Prvo tražimo po novom sistemu (bez godine)
       let { data, error } = await _supabase
         .from('citanja')
         .select('tekst')
         .eq('datum', newKey)
         .maybeSingle();
 
-      // Ako nema pod novim ključem, tražimo pod starim ključem (sa godinom)
       if (!data || !data.tekst) {
         const oldRes = await _supabase
           .from('citanja')
@@ -423,9 +501,9 @@
       }
 
       if (data && data.tekst) {
-        displayElem.textContent = data.tekst;
+        displayElem.innerHTML = data.tekst;
       } else {
-        displayElem.textContent = emptyText;
+        displayElem.innerHTML = emptyText;
       }
     }
 
@@ -438,12 +516,12 @@
       }
 
       const displayElem = document.getElementById(`${tab}Display`);
-      const textareaElem = document.getElementById(`${tab}Textarea`);
+      const editorElem = document.getElementById(`${tab}Editor`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
       const editElem = document.getElementById(`${tab}EditMode`);
 
-      const currentText = displayElem.textContent.includes("Nema unetog") || displayElem.textContent.includes("No ") ? "" : displayElem.textContent;
-      textareaElem.value = currentText;
+      const currentContent = displayElem.innerHTML.includes("Nema unetog") || displayElem.innerHTML.includes("No ") ? "" : displayElem.innerHTML;
+      editorElem.innerHTML = currentContent;
 
       viewElem.classList.add('hidden');
       editElem.classList.remove('hidden');
@@ -452,14 +530,14 @@
     async function saveTabContent(tab) {
       const selectedDate = datePicker.value;
       const dbKey = getNewDbKey(tab, selectedDate);
-      const textareaElem = document.getElementById(`${tab}Textarea`);
+      const editorElem = document.getElementById(`${tab}Editor`);
       const statusElem = document.getElementById(`${tab}SaveStatus`);
       const displayElem = document.getElementById(`${tab}Display`);
       const viewElem = document.getElementById(`${tab}ViewMode`);
       const editElem = document.getElementById(`${tab}EditMode`);
 
       const t = translations[currentLang];
-      const newText = textareaElem.value;
+      const newText = editorElem.innerHTML;
       statusElem.textContent = t.saving;
 
       const { error } = await _supabase
@@ -471,7 +549,7 @@
         statusElem.textContent = "";
       } else {
         statusElem.textContent = "";
-        displayElem.textContent = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
+        displayElem.innerHTML = newText || (tab === 'daily' ? t.emptyDaily : tab === 'plan' ? t.emptyPlan : tab === 'verse' ? t.emptyVerse : t.emptyQuote);
         editElem.classList.add('hidden');
         viewElem.classList.remove('hidden');
       }
@@ -484,27 +562,4 @@
 
     function changeDate(days) {
       const currentDate = new Date(datePicker.value);
-      currentDate.setDate(currentDate.getDate() + days);
-      datePicker.value = currentDate.toISOString().split('T')[0];
-      loadAllTabs();
-    }
-
-    function shareContent(textToShare) {
-      const t = translations[currentLang];
-      if (navigator.share) {
-        navigator.share({
-          title: t.appTitle,
-          text: textToShare,
-          url: window.location.href
-        }).catch(() => {});
-      } else {
-        navigator.clipboard.writeText(textToShare);
-        alert(t.copied);
-      }
-    }
-
-    applyTranslations();
-    loadAllTabs();
-  </script>
-</body>
-</html>
+      cur
