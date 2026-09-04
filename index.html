@@ -4,15 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dnevno Čitanje & Plan</title>
-  
-  <!-- Primarni i rezervni uvoz za Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
-  <script>
-    if (typeof supabase === 'undefined') {
-      document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"><\/script>');
-    }
-  </script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -82,7 +74,7 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    button, input[type="date"], select {
+    button, input[type="date"] {
       padding: 10px 15px;
       font-size: 16px;
       border-radius: 6px;
@@ -99,43 +91,16 @@
       color: white;
       border: none;
     }
-    .toolbar {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 8px;
-      background: #eee;
-      padding: 6px;
-      border-radius: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .toolbar-btn {
-      padding: 6px 12px;
-      font-size: 14px;
-      font-weight: bold;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .toolbar-btn:hover {
-      background: #e0e0e0;
-    }
-    .toolbar select {
-      padding: 5px 8px;
-      font-size: 14px;
-    }
-    .editor-box {
+    textarea {
       width: 100%;
-      min-height: 250px;
+      height: 250px;
       padding: 12px;
       box-sizing: border-box;
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
+      resize: vertical;
       line-height: 1.5;
-      background: #fff;
-      overflow-y: auto;
     }
     .display-area {
       min-height: 250px;
@@ -143,9 +108,9 @@
       border: 1px solid #eee;
       border-radius: 8px;
       background: #fafafa;
+      white-space: pre-wrap;
       font-size: 16px;
       line-height: 1.5;
-      word-wrap: break-word;
     }
     .controls {
       display: flex;
@@ -211,25 +176,13 @@
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.innerText)">📦 Podeli</button>
+          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.textContent)">📦 Podeli</button>
           <button id="dailyEditBtn" class="btn-main" onclick="enableEdit('daily')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="dailyEditMode" class="hidden">
-        <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
-        </div>
-        <div id="dailyEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="dailySaveStatus" class="status"></div>
         <div class="controls">
           <button id="dailyCancelBtn" onclick="cancelEdit('daily')">Otkaži</button>
@@ -243,25 +196,13 @@
       <div id="planViewMode">
         <div id="planDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.innerText)">📦 Podeli</button>
+          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.textContent)">📦 Podeli</button>
           <button id="planEditBtn" class="btn-main" onclick="enableEdit('plan')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="planEditMode" class="hidden">
-        <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
-        </div>
-        <div id="planEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="planSaveStatus" class="status"></div>
         <div class="controls">
           <button id="planCancelBtn" onclick="cancelEdit('plan')">Otkaži</button>
@@ -275,300 +216,14 @@
       <div id="verseViewMode">
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.innerText)">📦 Podeli</button>
+          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.textContent)">📦 Podeli</button>
           <button id="verseEditBtn" class="btn-main" onclick="enableEdit('verse')">⚙️ Uredi</button>
         </div>
       </div>
 
       <div id="verseEditMode" class="hidden">
-        <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
-        </div>
-        <div id="verseEditor" class="editor-box" contenteditable="true"></div>
+        <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
         <div id="verseSaveStatus" class="status"></div>
         <div class="controls">
           <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
-          <button id="verseSaveBtn" class="btn-main" onclick="saveTabContent('verse')">Sačuvaj</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: Mudre izreke -->
-    <div id="quoteSection" class="hidden">
-      <div id="quoteViewMode">
-        <div id="quoteDisplay" class="display-area">Učitavanje...</div>
-        <div class="controls">
-          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.innerText)">📦 Podeli</button>
-          <button id="quoteEditBtn" class="btn-main" onclick="enableEdit('quote')">⚙️ Uredi</button>
-        </div>
-      </div>
-
-      <div id="quoteEditMode" class="hidden">
-        <div class="toolbar">
-          <button class="toolbar-btn" onclick="formatDoc('bold')"><b>B</b></button>
-          <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
-          <button class="toolbar-btn" onclick="formatDoc('underline')"><u>U</u></button>
-          <select onchange="formatFontSize(this.value); this.selectedIndex=0;">
-            <option value="" disabled selected>Veličina slova</option>
-            <option value="2">Malo</option>
-            <option value="3">Normalno</option>
-            <option value="5">Veliko</option>
-            <option value="6">Veoma veliko</option>
-          </select>
-        </div>
-        <div id="quoteEditor" class="editor-box" contenteditable="true"></div>
-        <div id="quoteSaveStatus" class="status"></div>
-        <div class="controls">
-          <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
-          <button id="quoteSaveBtn" class="btn-main" onclick="saveTabContent('quote')">Sačuvaj</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Informacije o autoru i kontakt e-mail -->
-    <div class="footer">
-      <span id="authorText">Autor: Ivica Vučković</span> | 
-      <span id="contactText">Kontakt:</span> <a id="emailLink" href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
-    </div>
-
-  </div>
-
-  <script>
-    const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
-    
-    let _supabase = null;
-    const MOJA_SIFRA = '1234';
-
-    let currentLang = 'sr';
-    let currentTab = 'daily';
-
-    const translations = {
-      sr: {
-        appTitle: "Biblijsko Čitanje",
-        tabDaily: "📖 Dnevno Čitanje",
-        tabPlan: "📜 Godišnji Plan",
-        tabVerse: "💎 Stih Ohrabrenja",
-        tabQuote: "💡 Mudre Izreke",
-        share: "📦 Podeli",
-        edit: "⚙️ Uredi",
-        cancel: "Otkaži",
-        save: "Sačuvaj",
-        loading: "Učitavanje...",
-        saving: "Čuvanje...",
-        emptyDaily: "Nema unetog dnevnog čitanja za ovaj datum.",
-        emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
-        emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
-        emptyQuote: "Nema unete mudre izreke za ovaj datum.",
-        promptPass: "Unesite šifru za uređivanje:",
-        wrongPass: "Pogrešna šifra!",
-        copied: "Tekst je kopiran u međuspremnik!",
-        author: "Autor: Ivica Vučković",
-        contact: "Kontakt:",
-        dbError: "Greška sa konekcijom do baze."
-      },
-      en: {
-        appTitle: "Bible Reading",
-        tabDaily: "📖 Daily Reading",
-        tabPlan: "📜 Yearly Plan",
-        tabVerse: "💎 Encouraging Verse",
-        tabQuote: "💡 Wise Sayings",
-        share: "📦 Share",
-        edit: "Edit",
-        cancel: "Cancel",
-        save: "Save",
-        loading: "Loading...",
-        saving: "Saving...",
-        emptyDaily: "No daily reading added for this date.",
-        emptyPlan: "No yearly plan added for this date.",
-        emptyVerse: "No encouraging verse added for this date.",
-        emptyQuote: "No wise saying added for this date.",
-        promptPass: "Enter edit PIN:",
-        wrongPass: "Incorrect PIN!",
-        copied: "Text copied to clipboard!",
-        author: "Author: Ivica Vučković",
-        contact: "Contact:",
-        dbError: "Database connection error."
-      }
-    };
-
-    const datePicker = document.getElementById('datePicker');
-
-    function initDate() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      datePicker.value = `${year}-${month}-${day}`;
-    }
-
-    function initSupabase() {
-      if (typeof supabase !== 'undefined') {
-        _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      }
-    }
-
-    function formatDoc(cmd, value = null) {
-      document.execCommand(cmd, false, value);
-    }
-
-    function formatFontSize(size) {
-      if (size) {
-        document.execCommand('fontSize', false, size);
-      }
-    }
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      if (lang === 'sr') {
-        document.getElementById('langSrbBtn').classList.add('active');
-        document.getElementById('langEngBtn').classList.remove('active');
-      } else {
-        document.getElementById('langSrbBtn').classList.remove('active');
-        document.getElementById('langEngBtn').classList.add('active');
-      }
-      applyTranslations();
-      loadAllTabs();
-    }
-
-    function applyTranslations() {
-      const t = translations[currentLang];
-      document.getElementById('appTitle').textContent = t.appTitle;
-      document.getElementById('tabDailyBtn').textContent = t.tabDaily;
-      document.getElementById('tabPlanBtn').textContent = t.tabPlan;
-      document.getElementById('tabVerseBtn').textContent = t.tabVerse;
-      document.getElementById('tabQuoteBtn').textContent = t.tabQuote;
-      document.getElementById('authorText').textContent = t.author;
-      document.getElementById('contactText').textContent = t.contact;
-
-      ['daily', 'plan', 'verse', 'quote'].forEach(tab => {
-        document.getElementById(`${tab}ShareBtn`).textContent = t.share;
-        document.getElementById(`${tab}EditBtn`).textContent = t.edit;
-        document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
-        document.getElementById(`${tab}SaveBtn`).textContent = t.save;
-      });
-    }
-
-    function switchTab(tab) {
-      currentTab = tab;
-      ['daily', 'plan', 'verse', 'quote'].forEach(t => {
-        document.getElementById(`${t}Section`).classList.add('hidden');
-        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
-      });
-
-      document.getElementById(`${tab}Section`).classList.remove('hidden');
-      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
-    }
-
-    function getNewDbKey(tab, dateStr) {
-      const monthDay = dateStr.slice(5);
-      const prefix = currentLang === 'en' ? 'en_' : '';
-
-      if (tab === 'daily') return `${prefix}${monthDay}`;
-      if (tab === 'plan') return `${prefix}plan_${monthDay}`;
-      if (tab === 'verse') return `${prefix}stih_${monthDay}`;
-      if (tab === 'quote') return `${prefix}izreka_${monthDay}`;
-    }
-
-    function getOldDbKey(tab, dateStr) {
-      const prefix = currentLang === 'en' ? 'en_' : '';
-
-      if (tab === 'daily') return `${prefix}${dateStr}`;
-      if (tab === 'plan') return `${prefix}plan_${dateStr}`;
-      if (tab === 'verse') return `${prefix}stih_${dateStr}`;
-      if (tab === 'quote') return `${prefix}izreka_${dateStr}`;
-    }
-
-    async function loadAllTabs() {
-      const selectedDate = datePicker.value;
-      if (!selectedDate) return;
-      const t = translations[currentLang];
-
-      loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
-      loadTabContent('plan', selectedDate, 'planDisplay', t.emptyPlan);
-      loadTabContent('verse', selectedDate, 'verseDisplay', t.emptyVerse);
-      loadTabContent('quote', selectedDate, 'quoteDisplay', t.emptyQuote);
-    }
-
-    async function loadTabContent(tab, date, displayId, emptyText) {
-      const displayElem = document.getElementById(displayId);
-      displayElem.innerHTML = translations[currentLang].loading;
-
-      if (!_supabase) {
-        initSupabase();
-      }
-
-      if (!_supabase) {
-        displayElem.innerHTML = emptyText;
-        return;
-      }
-
-      const newKey = getNewDbKey(tab, date);
-      const oldKey = getOldDbKey(tab, date);
-
-      try {
-        let { data, error } = await _supabase
-          .from('citanja')
-          .select('tekst')
-          .eq('datum', newKey)
-          .maybeSingle();
-
-        if (!data || !data.tekst) {
-          const oldRes = await _supabase
-            .from('citanja')
-            .select('tekst')
-            .eq('datum', oldKey)
-            .maybeSingle();
-          
-          if (oldRes.data && oldRes.data.tekst) {
-            data = oldRes.data;
-          }
-        }
-
-        if (data && data.tekst) {
-          displayElem.innerHTML = data.tekst;
-        } else {
-          displayElem.innerHTML = emptyText;
-        }
-      } catch (err) {
-        displayElem.innerHTML = emptyText;
-      }
-    }
-
-    function enableEdit(tab) {
-      const t = translations[currentLang];
-      const unetaSifra = prompt(t.promptPass);
-      if (unetaSifra !== MOJA_SIFRA) {
-        alert(t.wrongPass);
-        return;
-      }
-
-      const displayElem = document.getElementById(`${tab}Display`);
-      const editorElem = document.getElementById(`${tab}Editor`);
-      const viewElem = document.getElementById(`${tab}ViewMode`);
-      const editElem = document.getElementById(`${tab}EditMode`);
-
-      const currentContent = displayElem.innerHTML.includes("Nema unetog") || displayElem.innerHTML.includes("No ") ? "" : displayElem.innerHTML;
-      editorElem.innerHTML = currentContent;
-
-      viewElem.classList.add('hidden');
-      editElem.classList.remove('hidden');
-    }
-
-    async function saveTabContent(tab) {
-      const selectedDate = datePicker.value;
-      const dbKey = getNewDbKey(tab, selectedDate);
-      const editorElem = document.getElementById(`${tab}Editor`);
-      const statusElem = document.getElementById(`${tab}SaveStatus`);
-      const displayElem = document.getElementById(`${tab}Display`);
-      const viewElem = document.getElementById(`${tab}ViewMode`);
-      const editElem = document.getElementByI
+          <button id="verseSaveBtn" class="btn-main" o
