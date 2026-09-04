@@ -392,7 +392,14 @@
     };
 
     const datePicker = document.getElementById('datePicker');
-    datePicker.value = new Date().toISOString().split('T')[0];
+
+    function initDate() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      datePicker.value = `${year}-${month}-${day}`;
+    }
 
     function formatDoc(cmd, value = null) {
       document.execCommand(cmd, false, value);
@@ -467,6 +474,7 @@
 
     async function loadAllTabs() {
       const selectedDate = datePicker.value;
+      if (!selectedDate) return;
       const t = translations[currentLang];
 
       loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
@@ -556,10 +564,4 @@
     }
 
     function cancelEdit(tab) {
-      document.getElementById(`${tab}EditMode`).classList.add('hidden');
-      document.getElementById(`${tab}ViewMode`).classList.remove('hidden');
-    }
-
-    function changeDate(days) {
-      const currentDate = new Date(datePicker.value);
-      cur
+     
