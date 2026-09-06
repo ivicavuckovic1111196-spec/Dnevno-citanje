@@ -205,14 +205,12 @@
       </div>
     </div>
 
-    <!-- Izbor datuma (prikazuje se samo za tabove vezane za datum) -->
     <div class="date-navigation" id="dateNav">
       <button class="btn-main" onclick="changeDate(-1)">◀</button>
       <input type="date" id="datePicker" onchange="loadAllTabs()">
       <button class="btn-main" onclick="changeDate(1)">▶</button>
     </div>
 
-    <!-- Navigacija između tabova -->
     <div class="tab-navigation">
       <button id="tabDailyBtn" class="tab-btn active" onclick="switchTab('daily')">📖 Dnevno Čitanje</button>
       <button id="tabConsiderBtn" class="tab-btn" onclick="switchTab('consider')">🕊️ Duhovna Razmatranja</button>
@@ -222,7 +220,6 @@
       <button id="tabBlogBtn" class="tab-btn" onclick="switchTab('blog')">✍️ Blog</button>
     </div>
 
-    <!-- TAB 1: Dnevno čitanje -->
     <div id="dailySection">
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
@@ -245,7 +242,6 @@
       </div>
     </div>
 
-    <!-- TAB 2: Duhovna razmatranja -->
     <div id="considerSection" class="hidden">
       <div id="considerViewMode">
         <div id="considerDisplay" class="display-area">Učitavanje...</div>
@@ -268,7 +264,6 @@
       </div>
     </div>
 
-    <!-- TAB 3: Godišnji plan čitanja -->
     <div id="planSection" class="hidden">
       <div id="planViewMode">
         <div id="planDisplay" class="display-area">Učitavanje...</div>
@@ -291,7 +286,6 @@
       </div>
     </div>
 
-    <!-- TAB 4: Stih ohrabrenja -->
     <div id="verseSection" class="hidden">
       <div id="verseViewMode">
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
@@ -305,245 +299,5 @@
           <button class="btn-bold" onclick="makeBold('verseTextarea')"><b>B</b> Bold</button>
           <button class="btn-italic" onclick="makeItalic('verseTextarea')"><i>I</i> Italic</button>
         </div>
-        <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
-        <div id="verseSaveStatus" class="status"></div>
-        <div class="controls">
-          <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
-          <button id="verseSaveBtn" class="btn-main" onclick="saveTabContent('verse')">Sačuvaj</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 5: Mudre izreke -->
-    <div id="quoteSection" class="hidden">
-      <div id="quoteViewMode">
-        <div id="quoteDisplay" class="display-area">Učitavanje...</div>
-        <div class="controls">
-          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.innerText)">📦 Podeli</button>
-          <button id="quoteEditBtn" class="btn-main" onclick="enableEdit('quote')">⚙️ Uredi</button>
-        </div>
-      </div>
-      <div id="quoteEditMode" class="hidden">
-        <div class="toolbar">
-          <button class="btn-bold" onclick="makeBold('quoteTextarea')"><b>B</b> Bold</button>
-          <button class="btn-italic" onclick="makeItalic('quoteTextarea')"><i>I</i> Italic</button>
-        </div>
-        <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
-        <div id="quoteSaveStatus" class="status"></div>
-        <div class="controls">
-          <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
-          <button id="quoteSaveBtn" class="btn-main" onclick="saveTabContent('quote')">Sačuvaj</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 6: Blog -->
-    <div id="blogSection" class="hidden">
-      <div class="controls" style="margin-bottom: 15px;">
-        <button id="blogNewBtn" class="btn-main" onclick="enableBlogEdit()">➕ Nova objava</button>
-      </div>
-
-      <div id="blogEditMode" class="hidden" style="margin-bottom: 25px; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-        <input type="text" id="blogTitleInput" placeholder="Naslov objave..." style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
-        <div class="toolbar">
-          <button class="btn-bold" onclick="makeBold('blogTextarea')"><b>B</b> Bold</button>
-          <button class="btn-italic" onclick="makeItalic('blogTextarea')"><i>I</i> Italic</button>
-        </div>
-        <textarea id="blogTextarea" placeholder="Sadržaj objave..."></textarea>
-        <div id="blogSaveStatus" class="status"></div>
-        <div class="controls">
-          <button id="blogCancelBtn" onclick="cancelBlogEdit()">Otkaži</button>
-          <button id="blogSaveBtn" class="btn-main" onclick="saveBlogPost()">Objavi</button>
-        </div>
-      </div>
-
-      <div id="blogContainer">Učitavanje bloga...</div>
-    </div>
-
-    <!-- Informacije o autoru i kontakt e-mail -->
-    <div class="footer">
-      <span id="authorText">Autor: Ivica Vučković</span> | 
-      <span id="contactText">Kontakt:</span> <a id="emailLink" href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
-    </div>
-
-  </div>
-
-  <script>
-    const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const MOJA_SIFRA = '1234';
-
-    let currentLang = 'sr';
-    let currentTab = 'daily';
-
-    const translations = {
-      sr: {
-        appTitle: "Biblijsko Čitanje",
-        tabDaily: "📖 Dnevno Čitanje",
-        tabConsider: "🕊️ Duhovna Razmatranja",
-        tabPlan: "📜 Plan",
-        tabVerse: "💎 Stih",
-        tabQuote: "💡 Izreke",
-        tabBlog: "✍️ Blog",
-        share: "📦 Podeli",
-        edit: "⚙️ Uredi",
-        cancel: "Otkaži",
-        save: "Sačuvaj",
-        loading: "Učitavanje...",
-        saving: "Čuvanje...",
-        emptyDaily: "Nema unetog dnevnog čitanja za ovaj datum.",
-        emptyConsider: "Nema unetog duhovnog razmatranja za ovaj datum.",
-        emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
-        emptyVerse: "Nema unetog stiha ohrabrenja za ovaj datum.",
-        emptyQuote: "Nema unete mudre izreke za ovaj datum.",
-        emptyBlog: "Trenutno nema blog objava.",
-        newPost: "➕ Nova objava",
-        placeholder: "Unesite tekst...",
-        promptPass: "Unesite šifru za uređivanje:",
-        wrongPass: "Pogrešna šifra!",
-        copied: "Tekst je kopiran u međuspremnik!",
-        author: "Autor: Ivica Vučković",
-        contact: "Kontakt:"
-      },
-      en: {
-        appTitle: "Bible Reading",
-        tabDaily: "📖 Daily Reading",
-        tabConsider: "🕊️ Spiritual Reflections",
-        tabPlan: "📜 Plan",
-        tabVerse: "💎 Verse",
-        tabQuote: "💡 Sayings",
-        tabBlog: "✍️ Blog",
-        share: "📦 Share",
-        edit: "Edit",
-        cancel: "Cancel",
-        save: "Save",
-        loading: "Loading...",
-        saving: "Saving...",
-        emptyDaily: "No daily reading added for this date.",
-        emptyConsider: "No spiritual reflection added for this date.",
-        emptyPlan: "No yearly plan added for this date.",
-        emptyVerse: "No encouraging verse added for this date.",
-        emptyQuote: "No wise saying added for this date.",
-        emptyBlog: "No blog posts available.",
-        newPost: "➕ New Post",
-        placeholder: "Enter text...",
-        promptPass: "Enter edit PIN:",
-        wrongPass: "Incorrect PIN!",
-        copied: "Text copied to clipboard!",
-        author: "Author: Ivica Vučković",
-        contact: "Contact:"
-      }
-    };
-
-    const datePicker = document.getElementById('datePicker');
-    const d = new Date();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    datePicker.value = `${d.getFullYear()}-${month}-${day}`;
-
-    function makeBold(textareaId) {
-      const txtArea = document.getElementById(textareaId);
-      const start = txtArea.selectionStart;
-      const end = txtArea.selectionEnd;
-      const selText = txtArea.value.substring(start, end);
-
-      if (selText.length > 0) {
-        txtArea.value = txtArea.value.substring(0, start) + `<b>${selText}</b>` + txtArea.value.substring(end);
-      } else {
-        txtArea.value += "<b>Podebljani tekst</b>";
-      }
-    }
-
-    function makeItalic(textareaId) {
-      const txtArea = document.getElementById(textareaId);
-      const start = txtArea.selectionStart;
-      const end = txtArea.selectionEnd;
-      const selText = txtArea.value.substring(start, end);
-
-      if (selText.length > 0) {
-        txtArea.value = txtArea.value.substring(0, start) + `<i>${selText}</i>` + txtArea.value.substring(end);
-      } else {
-        txtArea.value += "<i>Iskošeni tekst</i>";
-      }
-    }
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      if (lang === 'sr') {
-        document.getElementById('langSrbBtn').classList.add('active');
-        document.getElementById('langEngBtn').classList.remove('active');
-      } else {
-        document.getElementById('langSrbBtn').classList.remove('active');
-        document.getElementById('langEngBtn').classList.add('active');
-      }
-      applyTranslations();
-      loadAllTabs();
-    }
-
-    function applyTranslations() {
-      const t = translations[currentLang];
-      document.getElementById('appTitle').textContent = t.appTitle;
-      document.getElementById('tabDailyBtn').textContent = t.tabDaily;
-      document.getElementById('tabConsiderBtn').textContent = t.tabConsider;
-      document.getElementById('tabPlanBtn').textContent = t.tabPlan;
-      document.getElementById('tabVerseBtn').textContent = t.tabVerse;
-      document.getElementById('tabQuoteBtn').textContent = t.tabQuote;
-      document.getElementById('tabBlogBtn').textContent = t.tabBlog;
-      document.getElementById('authorText').textContent = t.author;
-      document.getElementById('contactText').textContent = t.contact;
-      document.getElementById('blogNewBtn').textContent = t.newPost;
-
-      ['daily', 'consider', 'plan', 'verse', 'quote'].forEach(tab => {
-        document.getElementById(`${tab}ShareBtn`).textContent = t.share;
-        document.getElementById(`${tab}EditBtn`).textContent = t.edit;
-        document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
-        document.getElementById(`${tab}SaveBtn`).textContent = t.save;
-        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
-      });
-    }
-
-    function switchTab(tab) {
-      currentTab = tab;
-      const tabs = ['daily', 'consider', 'plan', 'verse', 'quote', 'blog'];
-      
-      tabs.forEach(t => {
-        document.getElementById(`${t}Section`).classList.add('hidden');
-        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
-      });
-
-      document.getElementById(`${tab}Section`).classList.remove('hidden');
-      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
-
-      if (tab === 'blog') {
-        document.getElementById('dateNav').classList.add('hidden');
-        loadBlogPosts();
-      } else {
-        document.getElementById('dateNav').classList.remove('hidden');
-      }
-    }
-
-    function getKeysToSearch(tab, dateStr) {
-      const monthDay = dateStr.length > 5 ? dateStr.slice(5) : dateStr;
-      const prefix = currentLang === 'en' ? 'en_' : '';
-      let base = '';
-
-      if (tab === 'consider') base = 'razmatranje_';
-      if (tab === 'plan') base = 'plan_';
-      if (tab === 'verse') base = 'stih_';
-      if (tab === 'quote') base = 'izreka_';
-
-      return [
-        `${prefix}${base}${monthDay}`,
-        `${prefix}${base}${dateStr}`
-      ];
-    }
-
-    async function loadAllTabs() {
-      const selectedDate = datePicker.value;
-      if (!selectedDate) return;
-
-      const t = translations[currentLang];
-
-      loadTabContent('daily', selecte
+        <textarea id="verseTextarea"
+          
