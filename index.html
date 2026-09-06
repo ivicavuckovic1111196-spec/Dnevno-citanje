@@ -80,46 +80,12 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-    button {
-      cursor: pointer;
-    }
-    .btn-main {
-      background-color: #3498db;
-      color: white;
-      border: none;
-    }
-    .btn-purple {
-      background-color: #9b59b6;
-      color: white;
-      border: none;
-    }
-    .btn-danger {
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-    }
-    .toolbar {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 8px;
-    }
-    .btn-bold {
-      background-color: #27ae60;
-      color: white;
-      border: none;
-      font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 4px;
-    }
-    .btn-italic {
-      background-color: #f39c12;
-      color: white;
-      border: none;
-      font-style: italic;
-      font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 4px;
-    }
+    button { cursor: pointer; }
+    .btn-main { background-color: #3498db; color: white; border: none; }
+    .btn-purple { background-color: #9b59b6; color: white; border: none; }
+    .toolbar { display: flex; gap: 5px; margin-bottom: 8px; }
+    .btn-bold { background-color: #27ae60; color: white; border: none; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
+    .btn-italic { background-color: #f39c12; color: white; border: none; font-style: italic; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
     textarea {
       width: 100%;
       height: 200px;
@@ -141,9 +107,6 @@
       font-size: 16px;
       line-height: 1.5;
     }
-    .display-area b, .display-area strong { font-weight: bold; }
-    .display-area i, .display-area em { font-style: italic; }
-    
     .blog-item {
       background: #ffffff;
       border: 1px solid #e1e8ed;
@@ -160,27 +123,10 @@
       padding-bottom: 8px;
       margin-bottom: 12px;
     }
-    .blog-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #2c3e50;
-      margin: 0;
-    }
-    .blog-date {
-      font-size: 12px;
-      color: #888;
-    }
-    .blog-body {
-      font-size: 15px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-    .controls {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-    }
+    .blog-title { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 0; }
+    .blog-date { font-size: 12px; color: #888; }
+    .blog-body { font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+    .controls { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
     .pin-box {
       background: #fff3cd;
       border: 1px solid #ffeeba;
@@ -240,7 +186,7 @@
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.innerText)">📦 Podeli</button>
+          <button id="dailyShareBtn" class="btn-purple" onclick="shareContent('daily')">📦 Podeli</button>
           <button id="dailyEditBtn" class="btn-main" onclick="startEdit('daily')">⚙️ Uredi</button>
         </div>
       </div>
@@ -262,7 +208,7 @@
       <div id="considerViewMode">
         <div id="considerDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="considerShareBtn" class="btn-purple" onclick="shareContent(considerDisplay.innerText)">📦 Podeli</button>
+          <button id="considerShareBtn" class="btn-purple" onclick="shareContent('consider')">📦 Podeli</button>
           <button id="considerEditBtn" class="btn-main" onclick="startEdit('consider')">⚙️ Uredi</button>
         </div>
       </div>
@@ -284,7 +230,7 @@
       <div id="planViewMode">
         <div id="planDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.innerText)">📦 Podeli</button>
+          <button id="planShareBtn" class="btn-purple" onclick="shareContent('plan')">📦 Podeli</button>
           <button id="planEditBtn" class="btn-main" onclick="startEdit('plan')">⚙️ Uredi</button>
         </div>
       </div>
@@ -306,7 +252,7 @@
       <div id="verseViewMode">
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.innerText)">📦 Podeli</button>
+          <button id="verseShareBtn" class="btn-purple" onclick="shareContent('verse')">📦 Podeli</button>
           <button id="verseEditBtn" class="btn-main" onclick="startEdit('verse')">⚙️ Uredi</button>
         </div>
       </div>
@@ -328,7 +274,7 @@
       <div id="quoteViewMode">
         <div id="quoteDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
-          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.innerText)">📦 Podeli</button>
+          <button id="quoteShareBtn" class="btn-purple" onclick="shareContent('quote')">📦 Podeli</button>
           <button id="quoteEditBtn" class="btn-main" onclick="startEdit('quote')">⚙️ Uredi</button>
         </div>
       </div>
@@ -384,7 +330,7 @@
 
     let currentLang = 'sr';
     let currentTab = 'daily';
-    let pendingAction = null; // Zapisuje šta korisnik pokušava da uredi
+    let pendingAction = null;
 
     const translations = {
       sr: {
@@ -453,7 +399,6 @@
       datePicker.value = `${year}-${month}-${day}`;
     }
 
-    /* SISTEM UNOSA ŠIFRE BEZ PROMPT PROZORA */
     function startEdit(tab) {
       pendingAction = { type: 'tab', tab: tab };
       document.getElementById('pinInput').value = '';
@@ -557,4 +502,14 @@
       document.getElementById('tabPlanBtn').textContent = t.tabPlan;
       document.getElementById('tabVerseBtn').textContent = t.tabVerse;
       document.getElementById('tabQuoteBtn').textContent = t.tabQuote;
-     
+      document.getElementById('tabBlogBtn').textContent = t.tabBlog;
+      document.getElementById('authorText').textContent = t.author;
+      document.getElementById('contactText').textContent = t.contact;
+      document.getElementById('blogNewBtn').textContent = t.newPost;
+
+      ['daily', 'consider', 'plan', 'verse', 'quote'].forEach(tab => {
+        document.getElementById(`${tab}ShareBtn`).textContent = t.share;
+        document.getElementById(`${tab}EditBtn`).textContent = t.edit;
+        document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
+        document.getElementById(`${tab}SaveBtn`).textContent = t.save;
+        document.g
