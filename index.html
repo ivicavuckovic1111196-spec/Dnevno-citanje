@@ -74,7 +74,7 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    button, input[type="text"], input[type="date"] {
+    button, input[type="text"], input[type="password"], input[type="date"] {
       padding: 10px 15px;
       font-size: 16px;
       border-radius: 6px;
@@ -181,7 +181,17 @@
       gap: 10px;
       margin-top: 15px;
     }
-    .hidden { display: none; }
+    .pin-box {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .hidden { display: none !important; }
     .status { font-size: 14px; color: #666; text-align: right; margin-top: 5px; }
     .footer {
       margin-top: 30px;
@@ -220,12 +230,18 @@
       <button id="tabBlogBtn" class="tab-btn" onclick="switchTab('blog')">✍️ Blog</button>
     </div>
 
+    <div id="pinContainer" class="pin-box hidden">
+      <input type="password" id="pinInput" placeholder="Unesite šifru (1234)" style="flex: 1;">
+      <button class="btn-main" onclick="confirmPin()">Potvrdi</button>
+      <button onclick="cancelPin()">X</button>
+    </div>
+
     <div id="dailySection">
       <div id="dailyViewMode">
         <div id="dailyDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
           <button id="dailyShareBtn" class="btn-purple" onclick="shareContent(dailyDisplay.innerText)">📦 Podeli</button>
-          <button id="dailyEditBtn" class="btn-main" onclick="enableEdit('daily')">⚙️ Uredi</button>
+          <button id="dailyEditBtn" class="btn-main" onclick="startEdit('daily')">⚙️ Uredi</button>
         </div>
       </div>
       <div id="dailyEditMode" class="hidden">
@@ -247,7 +263,7 @@
         <div id="considerDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
           <button id="considerShareBtn" class="btn-purple" onclick="shareContent(considerDisplay.innerText)">📦 Podeli</button>
-          <button id="considerEditBtn" class="btn-main" onclick="enableEdit('consider')">⚙️ Uredi</button>
+          <button id="considerEditBtn" class="btn-main" onclick="startEdit('consider')">⚙️ Uredi</button>
         </div>
       </div>
       <div id="considerEditMode" class="hidden">
@@ -269,7 +285,7 @@
         <div id="planDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
           <button id="planShareBtn" class="btn-purple" onclick="shareContent(planDisplay.innerText)">📦 Podeli</button>
-          <button id="planEditBtn" class="btn-main" onclick="enableEdit('plan')">⚙️ Uredi</button>
+          <button id="planEditBtn" class="btn-main" onclick="startEdit('plan')">⚙️ Uredi</button>
         </div>
       </div>
       <div id="planEditMode" class="hidden">
@@ -291,7 +307,7 @@
         <div id="verseDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
           <button id="verseShareBtn" class="btn-purple" onclick="shareContent(verseDisplay.innerText)">📦 Podeli</button>
-          <button id="verseEditBtn" class="btn-main" onclick="enableEdit('verse')">⚙️ Uredi</button>
+          <button id="verseEditBtn" class="btn-main" onclick="startEdit('verse')">⚙️ Uredi</button>
         </div>
       </div>
       <div id="verseEditMode" class="hidden">
@@ -313,7 +329,7 @@
         <div id="quoteDisplay" class="display-area">Učitavanje...</div>
         <div class="controls">
           <button id="quoteShareBtn" class="btn-purple" onclick="shareContent(quoteDisplay.innerText)">📦 Podeli</button>
-          <button id="quoteEditBtn" class="btn-main" onclick="enableEdit('quote')">⚙️ Uredi</button>
+          <button id="quoteEditBtn" class="btn-main" onclick="startEdit('quote')">⚙️ Uredi</button>
         </div>
       </div>
       <div id="quoteEditMode" class="hidden">
@@ -332,7 +348,7 @@
 
     <div id="blogSection" class="hidden">
       <div class="controls" style="margin-bottom: 15px;">
-        <button id="blogNewBtn" class="btn-main" onclick="enableBlogEdit()">➕ Nova objava</button>
+        <button id="blogNewBtn" class="btn-main" onclick="startBlogEdit()">➕ Nova objava</button>
       </div>
 
       <div id="blogEditMode" class="hidden" style="margin-bottom: 25px; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
@@ -368,6 +384,7 @@
 
     let currentLang = 'sr';
     let currentTab = 'daily';
+    let pendingAction = null; // Zapisuje šta korisnik pokušava da uredi
 
     const translations = {
       sr: {
@@ -392,7 +409,6 @@
         emptyBlog: "Trenutno nema blog objava.",
         newPost: "➕ Nova objava",
         placeholder: "Unesite tekst...",
-        promptPass: "Unesite šifru za uređivanje:",
         wrongPass: "Pogrešna šifra!",
         copied: "Tekst je kopiran u međuspremnik!",
         author: "Autor: Ivica Vučković",
@@ -420,7 +436,6 @@
         emptyBlog: "No blog posts available.",
         newPost: "➕ New Post",
         placeholder: "Enter text...",
-        promptPass: "Enter edit PIN:",
         wrongPass: "Incorrect PIN!",
         copied: "Text copied to clipboard!",
         author: "Author: Ivica Vučković",
@@ -436,6 +451,63 @@
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       datePicker.value = `${year}-${month}-${day}`;
+    }
+
+    /* SISTEM UNOSA ŠIFRE BEZ PROMPT PROZORA */
+    function startEdit(tab) {
+      pendingAction = { type: 'tab', tab: tab };
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinContainer').classList.remove('hidden');
+    }
+
+    function startBlogEdit() {
+      pendingAction = { type: 'blog' };
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinContainer').classList.remove('hidden');
+    }
+
+    function cancelPin() {
+      document.getElementById('pinContainer').classList.add('hidden');
+      pendingAction = null;
+    }
+
+    function confirmPin() {
+      const inputPin = document.getElementById('pinInput').value;
+      const t = translations[currentLang];
+
+      if (inputPin !== MOJA_SIFRA) {
+        alert(t.wrongPass);
+        return;
+      }
+
+      document.getElementById('pinContainer').classList.add('hidden');
+
+      if (pendingAction && pendingAction.type === 'tab') {
+        enableEditMode(pendingAction.tab);
+      } else if (pendingAction && pendingAction.type === 'blog') {
+        enableBlogEditMode();
+      }
+      pendingAction = null;
+    }
+
+    function enableEditMode(tab) {
+      const displayElem = document.getElementById(`${tab}Display`);
+      const textareaElem = document.getElementById(`${tab}Textarea`);
+      const viewElem = document.getElementById(`${tab}ViewMode`);
+      const editElem = document.getElementById(`${tab}EditMode`);
+
+      const txt = displayElem.innerHTML;
+      const isNullText = txt.includes("Nema unetog") || txt.includes("No ") || txt.includes("Učitavanje");
+      textareaElem.value = isNullText ? "" : txt;
+
+      viewElem.classList.add('hidden');
+      editElem.classList.remove('hidden');
+    }
+
+    function enableBlogEditMode() {
+      document.getElementById('blogTitleInput').value = '';
+      document.getElementById('blogTextarea').value = '';
+      document.getElementById('blogEditMode').classList.remove('hidden');
     }
 
     function makeBold(textareaId) {
@@ -485,64 +557,4 @@
       document.getElementById('tabPlanBtn').textContent = t.tabPlan;
       document.getElementById('tabVerseBtn').textContent = t.tabVerse;
       document.getElementById('tabQuoteBtn').textContent = t.tabQuote;
-      document.getElementById('tabBlogBtn').textContent = t.tabBlog;
-      document.getElementById('authorText').textContent = t.author;
-      document.getElementById('contactText').textContent = t.contact;
-      document.getElementById('blogNewBtn').textContent = t.newPost;
-
-      ['daily', 'consider', 'plan', 'verse', 'quote'].forEach(tab => {
-        document.getElementById(`${tab}ShareBtn`).textContent = t.share;
-        document.getElementById(`${tab}EditBtn`).textContent = t.edit;
-        document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
-        document.getElementById(`${tab}SaveBtn`).textContent = t.save;
-        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
-      });
-    }
-
-    function switchTab(tab) {
-      currentTab = tab;
-      const tabs = ['daily', 'consider', 'plan', 'verse', 'quote', 'blog'];
-      
-      tabs.forEach(t => {
-        document.getElementById(`${t}Section`).classList.add('hidden');
-        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
-      });
-
-      document.getElementById(`${tab}Section`).classList.remove('hidden');
-      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
-
-      if (tab === 'blog') {
-        document.getElementById('dateNav').classList.add('hidden');
-        loadBlogPosts();
-      } else {
-        document.getElementById('dateNav').classList.remove('hidden');
-      }
-    }
-
-    function getKeysToSearch(tab, dateStr) {
-      const monthDay = dateStr.length > 5 ? dateStr.slice(5) : dateStr;
-      const prefix = currentLang === 'en' ? 'en_' : '';
-      let base = '';
-
-      if (tab === 'consider') base = 'razmatranje_';
-      if (tab === 'plan') base = 'plan_';
-      if (tab === 'verse') base = 'stih_';
-      if (tab === 'quote') base = 'izreka_';
-
-      return [
-        `${prefix}${base}${monthDay}`,
-        `${prefix}${base}${dateStr}`
-      ];
-    }
-
-    async function loadAllTabs() {
-      const selectedDate = datePicker.value;
-      if (!selectedDate) return;
-
-      const t = translations[currentLang];
-
-      loadTabContent('daily', selectedDate, 'dailyDisplay', t.emptyDaily);
-      loadTabContent('consider', selectedDate, 'considerDisplay', t.emptyConsider);
-      loadTabContent('plan', selectedDate, 'planDisplay', t.emptyPlan);
-      loadTabContent('verse', selectedDate, 'verseDisplay', t.emptyVerse);
-      loadTabContent('quote', selecte
+     
