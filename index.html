@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dnevno Čitanje & Blog</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -138,7 +137,6 @@
       align-items: center;
     }
     .hidden { display: none !important; }
-    .status { font-size: 14px; color: #666; text-align: right; margin-top: 5px; }
     .footer {
       margin-top: 30px;
       padding-top: 15px;
@@ -161,12 +159,14 @@
       </div>
     </div>
 
+    <!-- Izbor datuma -->
     <div class="date-navigation" id="dateNav">
       <button class="btn-main" onclick="changeDate(-1)">◀</button>
       <input type="date" id="datePicker" onchange="loadAllTabs()">
       <button class="btn-main" onclick="changeDate(1)">▶</button>
     </div>
 
+    <!-- Navigacija između tabova -->
     <div class="tab-navigation">
       <button id="tabDailyBtn" class="tab-btn active" onclick="switchTab('daily')">📖 Dnevno Čitanje</button>
       <button id="tabConsiderBtn" class="tab-btn" onclick="switchTab('consider')">🕊️ Duhovna Razmatranja</button>
@@ -176,15 +176,17 @@
       <button id="tabBlogBtn" class="tab-btn" onclick="switchTab('blog')">✍️ Blog</button>
     </div>
 
+    <!-- Prozor za unos PIN-a -->
     <div id="pinContainer" class="pin-box hidden">
       <input type="password" id="pinInput" placeholder="Unesite šifru (1234)" style="flex: 1;">
       <button class="btn-main" onclick="confirmPin()">Potvrdi</button>
       <button onclick="cancelPin()">X</button>
     </div>
 
+    <!-- TAB 1: Dnevno čitanje -->
     <div id="dailySection">
       <div id="dailyViewMode">
-        <div id="dailyDisplay" class="display-area">Učitavanje...</div>
+        <div id="dailyDisplay" class="display-area"></div>
         <div class="controls">
           <button id="dailyShareBtn" class="btn-purple" onclick="shareContent('daily')">📦 Podeli</button>
           <button id="dailyEditBtn" class="btn-main" onclick="startEdit('daily')">⚙️ Uredi</button>
@@ -196,7 +198,6 @@
           <button class="btn-italic" onclick="makeItalic('dailyTextarea')"><i>I</i> Italic</button>
         </div>
         <textarea id="dailyTextarea" placeholder="Unesite tekst..."></textarea>
-        <div id="dailySaveStatus" class="status"></div>
         <div class="controls">
           <button id="dailyCancelBtn" onclick="cancelEdit('daily')">Otkaži</button>
           <button id="dailySaveBtn" class="btn-main" onclick="saveTabContent('daily')">Sačuvaj</button>
@@ -204,9 +205,10 @@
       </div>
     </div>
 
+    <!-- TAB 2: Duhovna razmatranja -->
     <div id="considerSection" class="hidden">
       <div id="considerViewMode">
-        <div id="considerDisplay" class="display-area">Učitavanje...</div>
+        <div id="considerDisplay" class="display-area"></div>
         <div class="controls">
           <button id="considerShareBtn" class="btn-purple" onclick="shareContent('consider')">📦 Podeli</button>
           <button id="considerEditBtn" class="btn-main" onclick="startEdit('consider')">⚙️ Uredi</button>
@@ -217,8 +219,7 @@
           <button class="btn-bold" onclick="makeBold('considerTextarea')"><b>B</b> Bold</button>
           <button class="btn-italic" onclick="makeItalic('considerTextarea')"><i>I</i> Italic</button>
         </div>
-        <textarea id="considerTextarea" placeholder="Unesite duhovno razmatranje..."></textarea>
-        <div id="considerSaveStatus" class="status"></div>
+        <textarea id="considerTextarea" placeholder="Unesite tekst..."></textarea>
         <div class="controls">
           <button id="considerCancelBtn" onclick="cancelEdit('consider')">Otkaži</button>
           <button id="considerSaveBtn" class="btn-main" onclick="saveTabContent('consider')">Sačuvaj</button>
@@ -226,9 +227,10 @@
       </div>
     </div>
 
+    <!-- TAB 3: Plan -->
     <div id="planSection" class="hidden">
       <div id="planViewMode">
-        <div id="planDisplay" class="display-area">Učitavanje...</div>
+        <div id="planDisplay" class="display-area"></div>
         <div class="controls">
           <button id="planShareBtn" class="btn-purple" onclick="shareContent('plan')">📦 Podeli</button>
           <button id="planEditBtn" class="btn-main" onclick="startEdit('plan')">⚙️ Uredi</button>
@@ -240,7 +242,6 @@
           <button class="btn-italic" onclick="makeItalic('planTextarea')"><i>I</i> Italic</button>
         </div>
         <textarea id="planTextarea" placeholder="Unesite tekst..."></textarea>
-        <div id="planSaveStatus" class="status"></div>
         <div class="controls">
           <button id="planCancelBtn" onclick="cancelEdit('plan')">Otkaži</button>
           <button id="planSaveBtn" class="btn-main" onclick="saveTabContent('plan')">Sačuvaj</button>
@@ -248,9 +249,10 @@
       </div>
     </div>
 
+    <!-- TAB 4: Stih -->
     <div id="verseSection" class="hidden">
       <div id="verseViewMode">
-        <div id="verseDisplay" class="display-area">Učitavanje...</div>
+        <div id="verseDisplay" class="display-area"></div>
         <div class="controls">
           <button id="verseShareBtn" class="btn-purple" onclick="shareContent('verse')">📦 Podeli</button>
           <button id="verseEditBtn" class="btn-main" onclick="startEdit('verse')">⚙️ Uredi</button>
@@ -262,7 +264,6 @@
           <button class="btn-italic" onclick="makeItalic('verseTextarea')"><i>I</i> Italic</button>
         </div>
         <textarea id="verseTextarea" placeholder="Unesite tekst..."></textarea>
-        <div id="verseSaveStatus" class="status"></div>
         <div class="controls">
           <button id="verseCancelBtn" onclick="cancelEdit('verse')">Otkaži</button>
           <button id="verseSaveBtn" class="btn-main" onclick="saveTabContent('verse')">Sačuvaj</button>
@@ -270,9 +271,10 @@
       </div>
     </div>
 
+    <!-- TAB 5: Izreke -->
     <div id="quoteSection" class="hidden">
       <div id="quoteViewMode">
-        <div id="quoteDisplay" class="display-area">Učitavanje...</div>
+        <div id="quoteDisplay" class="display-area"></div>
         <div class="controls">
           <button id="quoteShareBtn" class="btn-purple" onclick="shareContent('quote')">📦 Podeli</button>
           <button id="quoteEditBtn" class="btn-main" onclick="startEdit('quote')">⚙️ Uredi</button>
@@ -283,8 +285,7 @@
           <button class="btn-bold" onclick="makeBold('quoteTextarea')"><b>B</b> Bold</button>
           <button class="btn-italic" onclick="makeItalic('quoteTextarea')"><i>I</i> Italic</button>
         </div>
-        <textarea id="quoteTextarea" placeholder="Unesite mudru izreku..."></textarea>
-        <div id="quoteSaveStatus" class="status"></div>
+        <textarea id="quoteTextarea" placeholder="Unesite tekst..."></textarea>
         <div class="controls">
           <button id="quoteCancelBtn" onclick="cancelEdit('quote')">Otkaži</button>
           <button id="quoteSaveBtn" class="btn-main" onclick="saveTabContent('quote')">Sačuvaj</button>
@@ -292,6 +293,7 @@
       </div>
     </div>
 
+    <!-- TAB 6: Blog -->
     <div id="blogSection" class="hidden">
       <div class="controls" style="margin-bottom: 15px;">
         <button id="blogNewBtn" class="btn-main" onclick="startBlogEdit()">➕ Nova objava</button>
@@ -304,16 +306,16 @@
           <button class="btn-italic" onclick="makeItalic('blogTextarea')"><i>I</i> Italic</button>
         </div>
         <textarea id="blogTextarea" placeholder="Sadržaj objave..."></textarea>
-        <div id="blogSaveStatus" class="status"></div>
         <div class="controls">
           <button id="blogCancelBtn" onclick="cancelBlogEdit()">Otkaži</button>
           <button id="blogSaveBtn" class="btn-main" onclick="saveBlogPost()">Objavi</button>
         </div>
       </div>
 
-      <div id="blogContainer">Učitavanje bloga...</div>
+      <div id="blogContainer"></div>
     </div>
 
+    <!-- Footer -->
     <div class="footer">
       <span id="authorText">Autor: Ivica Vučković</span> | 
       <span id="contactText">Kontakt:</span> <a id="emailLink" href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
@@ -322,10 +324,6 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
     const MOJA_SIFRA = '1234';
 
     let currentLang = 'sr';
@@ -345,8 +343,6 @@
         edit: "⚙️ Uredi",
         cancel: "Otkaži",
         save: "Sačuvaj",
-        loading: "Učitavanje...",
-        saving: "Čuvanje...",
         emptyDaily: "Nema unetog dnevnog čitanja za ovaj datum.",
         emptyConsider: "Nema unetog duhovnog razmatranja za ovaj datum.",
         emptyPlan: "Nema unetog godišnjeg plana za ovaj datum.",
@@ -372,8 +368,6 @@
         edit: "Edit",
         cancel: "Cancel",
         save: "Save",
-        loading: "Loading...",
-        saving: "Saving...",
         emptyDaily: "No daily reading added for this date.",
         emptyConsider: "No spiritual reflection added for this date.",
         emptyPlan: "No yearly plan added for this date.",
@@ -442,7 +436,7 @@
       const editElem = document.getElementById(`${tab}EditMode`);
 
       const txt = displayElem.innerHTML;
-      const isNullText = txt.includes("Nema unetog") || txt.includes("No ") || txt.includes("Učitavanje");
+      const isNullText = txt.includes("Nema unetog") || txt.includes("No ");
       textareaElem.value = isNullText ? "" : txt;
 
       viewElem.classList.add('hidden');
@@ -512,4 +506,21 @@
         document.getElementById(`${tab}EditBtn`).textContent = t.edit;
         document.getElementById(`${tab}CancelBtn`).textContent = t.cancel;
         document.getElementById(`${tab}SaveBtn`).textContent = t.save;
-        document.g
+        document.getElementById(`${tab}Textarea`).placeholder = t.placeholder;
+      });
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabs = ['daily', 'consider', 'plan', 'verse', 'quote', 'blog'];
+      
+      tabs.forEach(t => {
+        document.getElementById(`${t}Section`).classList.add('hidden');
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`).classList.remove('active');
+      });
+
+      document.getElementById(`${tab}Section`).classList.remove('hidden');
+      document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`).classList.add('active');
+
+      if (tab === 'blog') {
+        document.getElementById('dateNav').classList.add('hid
