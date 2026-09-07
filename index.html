@@ -114,7 +114,6 @@ h1 {
     border-radius: 10px;
     padding: 20px;
     min-height: 300px;
-    white-space: pre-wrap;
     line-height: 1.7;
     font-size: 17px;
 }
@@ -339,7 +338,12 @@ footer a {
 const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let _supabase = null;
+try {
+    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (e) {
+    console.error("Supabase inicijalizacija greška:", e);
+}
 
 
 /* =========================================================
@@ -383,7 +387,7 @@ const translations = {
         saved: 'Sadržaj je uspešno sačuvan.',
         password: 'Unesite šifru:',
         wrongPassword: 'Pogrešna šifra.',
-        error: 'Došlo je do greške.',
+        error: 'Došlo je do greške pri učitavanju ili bazi.',
         author: 'Autor: Ivica Vučković',
         contact: 'Kontakt:'
     },
@@ -528,6 +532,11 @@ async function loadStandardReading() {
     displayBox.textContent = translations[currentLanguage].loading;
     currentText = '';
 
+    if (!_supabase) {
+        displayBox.textContent = translations[currentLanguage].error;
+        return;
+    }
+
     const keys = getKeysToSearch();
 
     try {
@@ -538,23 +547,31 @@ async function loadStandardReading() {
 
         if (error) throw error;
 
-        let found = data.find(row => row.datum === keys[0]) || (currentLanguage === 'en' ? data.find(row => row.datum === keys[1]) : null);
+        let found = null;
+        if (data && data.length > 0) {
+            found = data.find(row => row.datum === keys[0]) || (currentLanguage === 'en' ? data.find(row => row.datum === keys[1]) : null);
+        }
 
         if (found && found.tekst) {
             currentText = found.tekst;
-            displayBox.innerHTML = formatText(found.tekst);
+            displayBox.innerHTML = safeFormatText(found.tekst);
         } else {
             displayBox.textContent = translations[currentLanguage].noText;
         }
     } catch (err) {
-        console.error(err);
-        displayBox.textContent = translations[currentLanguage].error;
+        console.error("Greska:", err);
+        displayBox.textContent = translations[currentLanguage].noText;
     }
 }
 
 async function loadBlogs() {
     const blogList = document.getElementById('blogList');
     blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].loading}</p>`;
+
+    if (!_supabase) {
+        blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
+        return;
+    }
 
     try {
         const { data, error } = await _supabase
@@ -574,8 +591,7 @@ async function loadBlogs() {
         renderBlogList();
 
     } catch (err) {
-        console.error("Greska pri ucitavanju bloga:", err);
-        // Ako tabela blog jos ne postoji u bazi, prikazujemo samo obavestenje
+        console.warn("Nema tabele 'blog' ili je doslo do greske:", err);
         blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
     }
 }
@@ -590,14 +606,14 @@ function renderBlogList() {
         div.className = 'blog-item';
 
         const h3 = document.createElement('h3');
-        h3.textContent = item.naslov;
+        h3.textContent = item.naslov || '';
 
         const dateDiv = document.createElement('div');
         dateDiv.className = 'blog-date';
         dateDiv.textContent = dateStr ? '📅 ' + dateStr : '';
 
         const textDiv = document.createElement('div');
-        textDiv.innerHTML = formatText(item.tekst);
+        textDiv.innerHTML = safeFormatText(item.tekst || '');
 
         const ctrlDiv = document.createElement('div');
         ctrlDiv.className = 'controls';
@@ -633,16 +649,26 @@ function renderBlogList() {
 
 
 /* =========================================================
-   FORMATIRANJE TEKSTA
+   SIGURNO FORMATIRANJE TEKSTA (BEZ PUCANJA SKRIPTE)
    ========================================================= */
 
-function formatText(text) {
+function safeFormatText(text) {
     if (!text) return '';
-    return text
-        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-        .replace(/__(.*?)__/g, '<i>$1</i>')
-        .replace(/\n/g, '<br>');
+    
+    // Konvertovanje specijalnih karaktera radi bezbednosti
+    let safe = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    // Formatiranje bold i italic pravila
+    safe = safe.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    safe = safe.replace(/__(.*?)__/g, '<i>$1</i>');
+
+    // Zamena novih redova HTML brejkovima <br>
+    return safe.replace(/\n/g, '<br>');
 }
 
 
@@ -688,30 +714,4 @@ function showEditor(isBlog) {
 
     document.getElementById('blogTitleArea').classList.toggle('hidden', !isBlog);
     document.getElementById('editArea').classList.remove('hidden');
-    document.querySelector('.toolbar').style.display = 'flex';
-}
-
-async function saveContent() {
-    if (currentTab === 'blog') {
-        await saveBlog();
-    } else {
-        await saveStandardReading();
-    }
-}
-
-async function saveStandardReading() {
-    const newText = document.getElementById('editor').value;
-    const datePart = getDatePart();
-    let prefix = '';
-
-    if (currentTab === 'plan') prefix = 'plan_';
-    if (currentTab === 'stih') prefix = 'stih_';
-    if (currentTab === 'izreka') prefix = 'izreka_';
-    if (currentTab === 'duhovno') prefix = 'duhovno_';
-
-    let dbKey = prefix + datePart;
-    if (currentLanguage === 'en') dbKey = 'en_' + dbKey;
-
-    try {
-        const { error } = await _supabase
-            .fro
+    documen
