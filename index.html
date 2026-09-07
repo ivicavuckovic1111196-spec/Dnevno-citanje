@@ -189,8 +189,16 @@ textarea {
 footer {
     text-align: center;
     margin-top: 30px;
-    color: #888;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    color: #777;
     font-size: 13px;
+}
+
+footer a {
+    color: #6b4f2a;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 .hidden {
@@ -288,7 +296,8 @@ footer {
     <div id="status" class="status"></div>
 
     <footer>
-        © Dnevno Čitanje
+        <span id="authorText">Autor: Ivica Vučković</span> | 
+        <span id="contactText">Kontakt:</span> <a href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
     </footer>
 
 </div>
@@ -353,14 +362,16 @@ const translations = {
         saved: 'Tekst je uspešno sačuvan.',
         password: 'Unesite šifru:',
         wrongPassword: 'Pogrešna šifra.',
-        error: 'Došlo je do greške.'
+        error: 'Došlo je do greške.',
+        author: 'Autor: Ivica Vučković',
+        contact: 'Kontakt:'
     },
 
     en: {
         title: '📖 Daily Reading',
 
         dnevno: '📖 Daily Reading',
-        plan: '📜 Annual Plan',
+        plan: '📜 Daily Reading',
         stih: '💎 Verse of Encouragement',
         izreka: '💡 Wise Sayings',
         duhovno: '🕊️ Spiritual Reflections',
@@ -376,7 +387,9 @@ const translations = {
         saved: 'Text has been successfully saved.',
         password: 'Enter password:',
         wrongPassword: 'Wrong password.',
-        error: 'An error occurred.'
+        error: 'An error occurred.',
+        author: 'Author: Ivica Vučković',
+        contact: 'Contact:'
     }
 
 };
@@ -403,6 +416,8 @@ function applyTranslations() {
     document.getElementById('editBtn').textContent = t.edit;
     document.getElementById('saveBtn').textContent = t.save;
     document.getElementById('cancelBtn').textContent = t.cancel;
+    document.getElementById('authorText').textContent = t.author;
+    document.getElementById('contactText').textContent = t.contact;
 }
 
 
@@ -826,7 +841,7 @@ function goToday() {
 
 
 /* =========================================================
-   DELJENJE
+   DELJENJE SA LINKOM
    ========================================================= */
 
 async function shareContent() {
@@ -843,12 +858,12 @@ async function shareContent() {
     const title =
         document.getElementById('appTitle').textContent;
 
+    const textWithUrl = currentText + "\n\n" + window.location.href;
+
     const shareData = {
-
         title: title,
-
-        text: currentText
-
+        text: currentText,
+        url: window.location.href
     };
 
     try {
@@ -860,13 +875,13 @@ async function shareContent() {
         } else {
 
             await navigator.clipboard.writeText(
-                currentText
+                textWithUrl
             );
 
             alert(
                 currentLanguage === 'sr'
-                    ? 'Tekst je kopiran.'
-                    : 'Text copied.'
+                    ? 'Tekst i link su kopirani.'
+                    : 'Text and link copied.'
             );
 
         }
@@ -884,32 +899,40 @@ async function shareContent() {
    BOLD / ITALIC
    ========================================================= */
 
-function makeBold() {
+function applyFormatTag(tag) {
     const txtArea = document.getElementById('editor');
     const start = txtArea.selectionStart;
     const end = txtArea.selectionEnd;
-    const selText = txtArea.value.substring(start, end);
+    const openTag = `<${tag}>`;
+    const closeTag = `</${tag}>`;
 
-    if (selText.length > 0) {
-        txtArea.value = txtArea.value.substring(0, start) + `<b>${selText}</b>` + txtArea.value.substring(end);
+    if (start !== end) {
+        const selected = txtArea.value.substring(start, end);
+        const replacement = openTag + selected + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start;
+        txtArea.selectionEnd = start + replacement.length;
     } else {
-        txtArea.value += "<b>Podebljani tekst</b>";
+        const placeholder = "tekst";
+        const replacement = openTag + placeholder + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start + openTag.length;
+        txtArea.selectionEnd = start + openTag.length + placeholder.length;
     }
+    
     txtArea.focus();
 }
 
-function makeItalic() {
-    const txtArea = document.getElementById('editor');
-    const start = txtArea.selectionStart;
-    const end = txtArea.selectionEnd;
-    const selText = txtArea.value.substring(start, end);
+function makeBold() {
+    applyFormatTag('b');
+}
 
-    if (selText.length > 0) {
-        txtArea.value = txtArea.value.substring(0, start) + `<i>${selText}</i>` + txtArea.value.substring(end);
-    } else {
-        txtArea.value += "<i>Iskošeni tekst</i>";
-    }
-    txtArea.focus();
+function makeItalic() {
+    applyFormatTag('i');
 }
 
 
