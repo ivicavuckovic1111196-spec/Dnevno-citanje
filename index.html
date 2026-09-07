@@ -193,17 +193,12 @@ footer {
     border-top: 1px solid #eee;
     color: #777;
     font-size: 13px;
-    line-height: 1.8;
 }
 
 footer a {
     color: #6b4f2a;
     text-decoration: none;
     font-weight: bold;
-}
-
-footer a:hover {
-    text-decoration: underline;
 }
 
 .hidden {
@@ -302,8 +297,7 @@ footer a:hover {
 
     <footer>
         <span id="authorText">Autor: Ivica Vučković</span> | 
-        <span id="contactText">Kontakt:</span> <a href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a> | 
-        <span id="blogText">Blog:</span> <a href="https://put-ka-bogu.blogspot.com/?m=1" target="_blank">put-ka-bogu.blogspot.com</a>
+        <span id="contactText">Kontakt:</span> <a href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
     </footer>
 
 </div>
@@ -370,8 +364,7 @@ const translations = {
         wrongPassword: 'Pogrešna šifra.',
         error: 'Došlo je do greške.',
         author: 'Autor: Ivica Vučković',
-        contact: 'Kontakt:',
-        blog: 'Blog:'
+        contact: 'Kontakt:'
     },
 
     en: {
@@ -396,8 +389,7 @@ const translations = {
         wrongPassword: 'Wrong password.',
         error: 'An error occurred.',
         author: 'Author: Ivica Vučković',
-        contact: 'Contact:',
-        blog: 'Blog:'
+        contact: 'Contact:'
     }
 
 };
@@ -426,7 +418,6 @@ function applyTranslations() {
     document.getElementById('cancelBtn').textContent = t.cancel;
     document.getElementById('authorText').textContent = t.author;
     document.getElementById('contactText').textContent = t.contact;
-    document.getElementById('blogText').textContent = t.blog;
 }
 
 
@@ -953,4 +944,17 @@ document.addEventListener(
     'DOMContentLoaded',
     function() {
 
-        
+        document.getElementById('datePicker').value =
+            currentDate;
+
+        applyTranslations();
+
+        loadTabContent();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
