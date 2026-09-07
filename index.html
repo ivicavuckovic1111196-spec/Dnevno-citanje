@@ -604,20 +604,10 @@ async function loadTabContent() {
 
 function formatText(text) {
 
-    return escapeHtml(text)
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/__(.*?)__/g, '<em>$1</em>')
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/__(.*?)__/g, '<i>$1</i>')
         .replace(/\n/g, '<br>');
-}
-
-
-function escapeHtml(text) {
-
-    const div = document.createElement('div');
-
-    div.textContent = text;
-
-    return div.innerHTML;
 }
 
 
@@ -895,45 +885,31 @@ async function shareContent() {
    ========================================================= */
 
 function makeBold() {
+    const txtArea = document.getElementById('editor');
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const selText = txtArea.value.substring(start, end);
 
-    insertFormatting('**');
-
+    if (selText.length > 0) {
+        txtArea.value = txtArea.value.substring(0, start) + `<b>${selText}</b>` + txtArea.value.substring(end);
+    } else {
+        txtArea.value += "<b>Podebljani tekst</b>";
+    }
+    txtArea.focus();
 }
-
 
 function makeItalic() {
+    const txtArea = document.getElementById('editor');
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const selText = txtArea.value.substring(start, end);
 
-    insertFormatting('__');
-
-}
-
-
-function insertFormatting(mark) {
-
-    const textarea =
-        document.getElementById('editor');
-
-    const start =
-        textarea.selectionStart;
-
-    const end =
-        textarea.selectionEnd;
-
-    const selected =
-        textarea.value.substring(start, end);
-
-    const replacement =
-        mark + selected + mark;
-
-    textarea.setRangeText(
-        replacement,
-        start,
-        end,
-        'select'
-    );
-
-    textarea.focus();
-
+    if (selText.length > 0) {
+        txtArea.value = txtArea.value.substring(0, start) + `<i>${selText}</i>` + txtArea.value.substring(end);
+    } else {
+        txtArea.value += "<i>Iskošeni tekst</i>";
+    }
+    txtArea.focus();
 }
 
 
