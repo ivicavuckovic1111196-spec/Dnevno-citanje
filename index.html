@@ -119,31 +119,6 @@ h1 {
     font-size: 17px;
 }
 
-/* Blog specifični stilovi */
-.blog-post {
-    background: white;
-    border: 1px solid #ddd4c6;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.blog-post h3 {
-    margin: 0 0 8px 0;
-    color: #4b3621;
-    font-size: 20px;
-}
-
-.blog-post .blog-meta {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 10px;
-}
-
-.blog-post .blog-content {
-    line-height: 1.6;
-}
-
 .toolbar {
     display: none;
     gap: 5px;
@@ -204,11 +179,6 @@ textarea {
     color: white;
 }
 
-.delete-blog {
-    background: #b33;
-    color: white;
-}
-
 .status {
     margin-top: 12px;
     text-align: center;
@@ -233,28 +203,6 @@ footer a {
 
 .hidden {
     display: none !important;
-}
-
-/* Blog forma za unos */
-.blog-form {
-    background: #faf8f3;
-    border: 1px solid #ddd4c6;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-
-.blog-form input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    font-size: 18px;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
-
-.blog-form textarea {
-    min-height: 200px;
 }
 </style>
 </head>
@@ -294,83 +242,54 @@ footer a {
             🕊️ Duhovna Razmatranja
         </button>
 
-        <!-- NOVI BLOG TAB -->
-        <button class="tab" id="tab-blog" onclick="switchTab('blog')">
-            📝 Blog
+    </div>
+
+    <div class="date-area">
+
+        <input type="date" id="datePicker" onchange="changeDate()">
+
+        <div class="date-buttons">
+            <button onclick="changeDateBy(-1)">◀</button>
+            <button onclick="goToday()" id="todayBtn">Danas</button>
+            <button onclick="changeDateBy(1)">▶</button>
+        </div>
+
+    </div>
+
+    <div id="displayBox" class="content-box">
+        Učitavanje...
+    </div>
+
+    <div id="editArea" class="hidden">
+
+        <div class="toolbar">
+            <button onclick="makeBold()">B</button>
+            <button onclick="makeItalic()"><i>I</i></button>
+        </div>
+
+        <textarea id="editor"></textarea>
+
+        <div class="controls">
+            <button class="save" onclick="saveTabContent()" id="saveBtn">
+                Sačuvaj
+            </button>
+
+            <button class="cancel" onclick="cancelEdit()" id="cancelBtn">
+                Otkaži
+            </button>
+        </div>
+
+    </div>
+
+    <div class="controls" id="mainControls">
+
+        <button class="share" onclick="shareContent()" id="shareBtn">
+            📤 Podeli
         </button>
 
-    </div>
-
-    <!-- OVAJ DEO SE VIDI SAMO KAD NIJE BLOG -->
-    <div id="regularControls">
-        <div class="date-area">
-
-            <input type="date" id="datePicker" onchange="changeDate()">
-
-            <div class="date-buttons">
-                <button onclick="changeDateBy(-1)">◀</button>
-                <button onclick="goToday()" id="todayBtn">Danas</button>
-                <button onclick="changeDateBy(1)">▶</button>
-            </div>
-
-        </div>
-
-        <div id="displayBox" class="content-box">
-            Učitavanje...
-        </div>
-
-        <div id="editArea" class="hidden">
-
-            <div class="toolbar">
-                <button onclick="makeBold()">B</button>
-                <button onclick="makeItalic()"><i>I</i></button>
-            </div>
-
-            <textarea id="editor"></textarea>
-
-            <div class="controls">
-                <button class="save" onclick="saveTabContent()" id="saveBtn">
-                    Sačuvaj
-                </button>
-
-                <button class="cancel" onclick="cancelEdit()" id="cancelBtn">
-                    Otkaži
-                </button>
-            </div>
-
-        </div>
-
-        <div class="controls" id="mainControls">
-
-            <button class="share" onclick="shareContent()" id="shareBtn">
-                📤 Podeli
-            </button>
-
-            <button class="edit" onclick="enableEdit()" id="editBtn">
-                ✏️ Uredi
-            </button>
-
-        </div>
-    </div>
-
-    <!-- OVAJ DEO SE VIDI SAMO ZA BLOG -->
-    <div id="blogArea" class="hidden">
-
-        <!-- Forma za novi blog post -->
-        <div class="blog-form">
-            <h3>✍️ Napiši novi blog post</h3>
-            <input type="text" id="blogTitle" placeholder="Naslov..." />
-            <textarea id="blogContent" placeholder="Sadržaj..."></textarea>
-            <div class="controls">
-                <button class="save" onclick="saveBlogPost()">Objavi</button>
-                <button class="cancel" onclick="clearBlogForm()">Očisti</button>
-            </div>
-        </div>
-
-        <!-- Lista blog postova -->
-        <div id="blogList">
-            Učitavanje blog postova...
-        </div>
+        <button class="edit" onclick="enableEdit()" id="editBtn">
+            ✏️ Uredi
+        </button>
 
     </div>
 
@@ -431,7 +350,6 @@ const translations = {
         stih: '💎 Stih Ohrabrenja',
         izreka: '💡 Mudre Izreke',
         duhovno: '🕊️ Duhovna Razmatranja',
-        blog: '📝 Blog',
 
         today: 'Danas',
         share: '📤 Podeli',
@@ -446,13 +364,7 @@ const translations = {
         wrongPassword: 'Pogrešna šifra.',
         error: 'Došlo je do greške.',
         author: 'Autor: Ivica Vučković',
-        contact: 'Kontakt:',
-        blogTitle: 'Naslov',
-        blogContent: 'Sadržaj',
-        publish: 'Objavi',
-        clear: 'Očisti',
-        delete: 'Obriši',
-        noBlogPosts: 'Još nema blog postova. Budi prvi koji će napisati!'
+        contact: 'Kontakt:'
     },
 
     en: {
@@ -463,7 +375,6 @@ const translations = {
         stih: '💎 Verse of Encouragement',
         izreka: '💡 Wise Sayings',
         duhovno: '🕊️ Spiritual Reflections',
-        blog: '📝 Blog',
 
         today: 'Today',
         share: '📤 Share',
@@ -478,13 +389,7 @@ const translations = {
         wrongPassword: 'Wrong password.',
         error: 'An error occurred.',
         author: 'Author: Ivica Vučković',
-        contact: 'Contact:',
-        blogTitle: 'Title',
-        blogContent: 'Content',
-        publish: 'Publish',
-        clear: 'Clear',
-        delete: 'Delete',
-        noBlogPosts: 'No blog posts yet. Be the first to write one!'
+        contact: 'Contact:'
     }
 
 };
@@ -505,7 +410,6 @@ function applyTranslations() {
     document.getElementById('tab-stih').textContent = t.stih;
     document.getElementById('tab-izreka').textContent = t.izreka;
     document.getElementById('tab-duhovno').textContent = t.duhovno;
-    document.getElementById('tab-blog').textContent = t.blog;
 
     document.getElementById('todayBtn').textContent = t.today;
     document.getElementById('shareBtn').textContent = t.share;
@@ -533,11 +437,7 @@ function setLanguage(lang) {
 
     applyTranslations();
 
-    if (currentTab === 'blog') {
-        loadBlogPosts();
-    } else {
-        loadTabContent();
-    }
+    loadTabContent();
 }
 
 
@@ -555,23 +455,13 @@ function switchTab(tab) {
     document.getElementById('tab-' + tab)
         .classList.add('active');
 
-    // Sakrij sve
-    document.getElementById('regularControls').classList.add('hidden');
-    document.getElementById('blogArea').classList.add('hidden');
-    document.getElementById('editArea').classList.add('hidden');
-    document.getElementById('mainControls').classList.remove('hidden');
-    document.getElementById('displayBox').classList.remove('hidden');
+    document.getElementById('editArea')
+        .classList.add('hidden');
 
-    if (tab === 'blog') {
-        // Prikaži blog
-        document.getElementById('blogArea').classList.remove('hidden');
-        document.getElementById('regularControls').classList.add('hidden');
-        loadBlogPosts();
-    } else {
-        // Prikaži regularne kontrole
-        document.getElementById('regularControls').classList.remove('hidden');
-        loadTabContent();
-    }
+    document.getElementById('mainControls')
+        .classList.remove('hidden');
+
+    loadTabContent();
 }
 
 
@@ -632,7 +522,7 @@ function getKeysToSearch() {
 
 
 /* =========================================================
-   UČITAVANJE (REGULARNI TABOVI)
+   UČITAVANJE
    ========================================================= */
 
 async function loadTabContent() {
@@ -777,7 +667,7 @@ function enableEdit() {
 
 
 /* =========================================================
-   ČUVANJE (REGULARNI TABOVI)
+   ČUVANJE
    ========================================================= */
 
 async function saveTabContent() {
@@ -926,4 +816,145 @@ function changeDateBy(days) {
         date.getDate() + days
     );
 
+    currentDate =
+        date.toISOString().split('T')[0];
+
+    document.getElementById('datePicker').value =
+        currentDate;
+
+    loadTabContent();
+
+}
+
+
+function goToday() {
+
+    currentDate =
+        new Date().toISOString().split('T')[0];
+
+    document.getElementById('datePicker').value =
+        currentDate;
+
+    loadTabContent();
+
+}
+
+
+/* =========================================================
+   DELJENJE SA LINKOM
+   ========================================================= */
+
+async function shareContent() {
+
+    if (!currentText) {
+
+        alert(
+            translations[currentLanguage].noText
+        );
+
+        return;
+    }
+
+    const title =
+        document.getElementById('appTitle').textContent;
+
+    const textWithUrl = currentText + "\n\n" + window.location.href;
+
+    const shareData = {
+        title: title,
+        text: currentText,
+        url: window.location.href
+    };
+
+    try {
+
+        if (navigator.share) {
+
+            await navigator.share(shareData);
+
+        } else {
+
+            await navigator.clipboard.writeText(
+                textWithUrl
+            );
+
+            alert(
+                currentLanguage === 'sr'
+                    ? 'Tekst i link su kopirani.'
+                    : 'Text and link copied.'
+            );
+
+        }
+
+    } catch (err) {
+
+        console.log(err);
+
+    }
+
+}
+
+
+/* =========================================================
+   BOLD / ITALIC
+   ========================================================= */
+
+function applyFormatTag(tag) {
+    const txtArea = document.getElementById('editor');
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const openTag = `<${tag}>`;
+    const closeTag = `</${tag}>`;
+
+    if (start !== end) {
+        const selected = txtArea.value.substring(start, end);
+        const replacement = openTag + selected + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start;
+        txtArea.selectionEnd = start + replacement.length;
+    } else {
+        const placeholder = "tekst";
+        const replacement = openTag + placeholder + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start + openTag.length;
+        txtArea.selectionEnd = start + openTag.length + placeholder.length;
+    }
     
+    txtArea.focus();
+}
+
+function makeBold() {
+    applyFormatTag('b');
+}
+
+function makeItalic() {
+    applyFormatTag('i');
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+
+        document.getElementById('datePicker').value =
+            currentDate;
+
+        applyTranslations();
+
+        loadTabContent();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
