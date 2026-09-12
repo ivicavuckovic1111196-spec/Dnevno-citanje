@@ -126,7 +126,7 @@ footer a:hover { text-decoration: underline; }
 
 <script>
 const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrd3hrbHpoanZjY2dzenhreHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyODU5ODYsImV4cCI6MjEwMzg2MTk4Nn0.CBLPm10hmHrAhnTl1tDQ0Z-NAsir2-GKZfhQgpmKOfo';
 
 let _supabase = null;
 try {
@@ -342,7 +342,7 @@ async function loadBlogs() {
 
         renderBlogList();
     } catch (err) {
-        console.warn("Tabela 'blog' još ne postoji ili je prazna:", err);
+        console.warn("Greška ili tabela ne postoji:", err);
         blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
     }
 }
@@ -508,9 +508,4 @@ async function saveBlog() {
             ({ error } = await _supabase
                 .from('blog')
                 .insert([{ naslov: naslov, tekst: tekst }]));
-        }
-
-        if (error) throw error;
-
-        closeEditor();
-        document.getElementById('status').textContent = translations[currentLangua
+ 
