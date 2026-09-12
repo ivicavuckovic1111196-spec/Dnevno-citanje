@@ -4,49 +4,206 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dnevno Čitanje & Blog</title>
+<title>Dnevno Čitanje</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
 
 <style>
-* { box-sizing: border-box; }
-body { margin: 0; font-family: Arial, sans-serif; background: #f4f1ea; color: #333; }
-.container { max-width: 900px; margin: auto; background: white; min-height: 100vh; padding: 15px; }
-.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-h1 { margin: 0; font-size: 25px; color: #4b3621; }
-.lang { display: flex; gap: 5px; }
-.lang button { border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; }
-.lang button.active { background: #4b3621; color: white; }
-.tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
-.tab { flex: 1 1 120px; padding: 11px 8px; border: none; border-radius: 7px; background: #e6e0d5; cursor: pointer; font-size: 14px; }
-.tab.active { background: #6b4f2a; color: white; }
-.date-area { text-align: center; margin-bottom: 15px; }
-.date-area input { padding: 9px; font-size: 16px; border: 1px solid #bbb; border-radius: 6px; }
-.date-buttons { margin-top: 8px; display: flex; justify-content: center; gap: 8px; }
-.date-buttons button { padding: 8px 15px; border: none; border-radius: 6px; background: #6b4f2a; color: white; cursor: pointer; }
-.content-box { background: #faf8f3; border: 1px solid #ddd4c6; border-radius: 10px; padding: 20px; min-height: 300px; line-height: 1.7; font-size: 17px; }
-.toolbar { display: none; gap: 5px; margin-bottom: 8px; }
-.toolbar button { padding: 7px 12px; border: 1px solid #bbb; background: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
-input[type="text"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #bbb; border-radius: 6px; margin-bottom: 10px; }
-textarea { width: 100%; min-height: 250px; padding: 15px; font-size: 17px; line-height: 1.6; border: 1px solid #bbb; border-radius: 8px; resize: vertical; }
-.controls { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-.controls button, .external-btn { padding: 9px 15px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; }
-.edit { background: #6b4f2a; color: white; }
-.share { background: #4b7f52; color: white; }
-.save { background: #287a45; color: white; }
-.cancel { background: #999; color: white; }
-.delete-btn { background: #a93226; color: white; }
-.blog-link-card { background: #e8f0fe; border: 1px solid #b6d4fe; border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; }
-.blog-link-card h3 { margin-top: 0; color: #1a0dab; }
-.external-btn { background: #1a73e8; color: white; font-weight: bold; margin-top: 10px; }
-.blog-item { background: #faf8f3; border: 1px solid #ddd4c6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-.blog-item h3 { margin-top: 0; color: #4b3621; }
-.blog-date { font-size: 12px; color: #888; margin-bottom: 10px; }
-.status { margin-top: 12px; text-align: center; font-size: 14px; color: #777; }
-footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; color: #777; font-size: 13px; line-height: 1.8; }
-footer a { color: #6b4f2a; text-decoration: none; font-weight: bold; }
-footer a:hover { text-decoration: underline; }
-.hidden { display: none !important; }
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f1ea;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 25px;
+    color: #4b3621;
+}
+
+.lang {
+    display: flex;
+    gap: 5px;
+}
+
+.lang button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.lang button.active {
+    background: #4b3621;
+    color: white;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    flex: 1 1 150px;
+    padding: 11px 8px;
+    border: none;
+    border-radius: 7px;
+    background: #e6e0d5;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tab.active {
+    background: #6b4f2a;
+    color: white;
+}
+
+.date-area {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.date-area input {
+    padding: 9px;
+    font-size: 16px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+.date-buttons {
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.date-buttons button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    background: #6b4f2a;
+    color: white;
+    cursor: pointer;
+}
+
+.content-box {
+    background: #faf8f3;
+    border: 1px solid #ddd4c6;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 300px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 17px;
+}
+
+.toolbar {
+    display: none;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.toolbar button {
+    padding: 7px 12px;
+    border: 1px solid #bbb;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 15px;
+    font-size: 17px;
+    line-height: 1.6;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.controls {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.controls button {
+    padding: 9px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit {
+    background: #6b4f2a;
+    color: white;
+}
+
+.share {
+    background: #4b7f52;
+    color: white;
+}
+
+.save {
+    background: #287a45;
+    color: white;
+}
+
+.cancel {
+    background: #999;
+    color: white;
+}
+
+.status {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    color: #777;
+    font-size: 13px;
+}
+
+footer a {
+    color: #6b4f2a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none !important;
+}
 </style>
 </head>
 
@@ -56,6 +213,7 @@ footer a:hover { text-decoration: underline; }
 
     <div class="topbar">
         <h1 id="appTitle">📖 Dnevno Čitanje</h1>
+
         <div class="lang">
             <button id="srBtn" class="active" onclick="setLanguage('sr')">SR</button>
             <button id="enBtn" onclick="setLanguage('en')">EN</button>
@@ -63,452 +221,740 @@ footer a:hover { text-decoration: underline; }
     </div>
 
     <div class="tabs">
-        <button class="tab active" id="tab-dnevno" onclick="switchTab('dnevno')">📖 Dnevno Čitanje</button>
-        <button class="tab" id="tab-plan" onclick="switchTab('plan')">📜 Godišnji Plan</button>
-        <button class="tab" id="tab-stih" onclick="switchTab('stih')">💎 Stih Ohrabrenja</button>
-        <button class="tab" id="tab-izreka" onclick="switchTab('izreka')">💡 Mudre Izreke</button>
-        <button class="tab" id="tab-duhovno" onclick="switchTab('duhovno')">🕊️ Duhovna Razmatranja</button>
-        <button class="tab" id="tab-blog" onclick="switchTab('blog')">✍️ Blog</button>
+
+        <button class="tab active" id="tab-dnevno" onclick="switchTab('dnevno')">
+            📖 Dnevno Čitanje
+        </button>
+
+        <button class="tab" id="tab-plan" onclick="switchTab('plan')">
+            📜 Godišnji Plan
+        </button>
+
+        <button class="tab" id="tab-stih" onclick="switchTab('stih')">
+            💎 Stih Ohrabrenja
+        </button>
+
+        <button class="tab" id="tab-izreka" onclick="switchTab('izreka')">
+            💡 Mudre Izreke
+        </button>
+
+        <button class="tab" id="tab-duhovno" onclick="switchTab('duhovno')">
+            🕊️ Duhovna Razmatranja
+        </button>
+
     </div>
 
-    <div class="date-area" id="dateSection">
+    <div class="date-area">
+
         <input type="date" id="datePicker" onchange="changeDate()">
+
         <div class="date-buttons">
             <button onclick="changeDateBy(-1)">◀</button>
             <button onclick="goToday()" id="todayBtn">Danas</button>
             <button onclick="changeDateBy(1)">▶</button>
         </div>
+
     </div>
 
-    <div id="displayBox" class="content-box">Učitavanje...</div>
-
-    <div id="blogContainer" class="hidden">
-        <div class="blog-link-card">
-            <h3 id="externalBlogTitle">🔗 Posetite naš zvanični Blog</h3>
-            <p id="externalBlogDesc">Za više autorskih tekstova i članaka posetite naš blog na Blogger platformi.</p>
-            <a href="https://put-ka-bogu.blogspot.com/?m=1" target="_blank" class="external-btn" id="externalBlogBtn">🌐 Otvori Blog (put-ka-bogu.blogspot.com) ↗</a>
-        </div>
-        <div id="blogList"></div>
+    <div id="displayBox" class="content-box">
+        Učitavanje...
     </div>
 
     <div id="editArea" class="hidden">
+
         <div class="toolbar">
             <button onclick="makeBold()">B</button>
             <button onclick="makeItalic()"><i>I</i></button>
         </div>
 
-        <div id="blogTitleArea" class="hidden">
-            <input type="text" id="blogTitleInput" placeholder="Naslov bloga...">
-        </div>
-
         <textarea id="editor"></textarea>
 
         <div class="controls">
-            <button class="save" onclick="saveContent()" id="saveBtn">Sačuvaj</button>
-            <button class="cancel" onclick="cancelEdit()" id="cancelBtn">Otkaži</button>
+            <button class="save" onclick="saveTabContent()" id="saveBtn">
+                Sačuvaj
+            </button>
+
+            <button class="cancel" onclick="cancelEdit()" id="cancelBtn">
+                Otkaži
+            </button>
         </div>
+
     </div>
 
     <div class="controls" id="mainControls">
-        <button class="share" onclick="shareContent()" id="shareBtn">📤 Podeli</button>
-        <button class="edit" onclick="enableEdit()" id="editBtn">✏️ Uredi</button>
+
+        <button class="share" onclick="shareContent()" id="shareBtn">
+            📤 Podeli
+        </button>
+
+        <button class="edit" onclick="enableEdit()" id="editBtn">
+            ✏️ Uredi
+        </button>
+
     </div>
 
     <div id="status" class="status"></div>
 
     <footer>
         <span id="authorText">Autor: Ivica Vučković</span> | 
-        <span id="contactText">Kontakt:</span> <a href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a> | 
-        <span id="blogFooterText">Blog:</span> <a href="https://put-ka-bogu.blogspot.com/?m=1" target="_blank">put-ka-bogu.blogspot.com</a>
+        <span id="contactText">Kontakt:</span> <a href="mailto:slugaisusahristosa@gmail.com">slugaisusahristosa@gmail.com</a>
     </footer>
 
 </div>
 
+
 <script>
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
 const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrd3hrbHpoanZjY2dzenhreHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyODU5ODYsImV4cCI6MjEwMzg2MTk4Nn0.CBLPm10hmHrAhnTl1tDQ0Z-NAsir2-GKZfhQgpmKOfo';
 
-let _supabase = null;
+const SUPABASE_KEY =
+'sb_publishable_XJ1E7HAtQNXSYCMtCeCk6A_78hqKMEo';
 
-function initSupabase() {
-    if (typeof supabase !== 'undefined' && !_supabase) {
-        try {
-            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch (e) {
-            console.error("Greška pri inicijalizaciji Supabase-a:", e);
-        }
-    }
-}
+const _supabase = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+
+/* =========================================================
+   PODEŠAVANJA
+   ========================================================= */
 
 const MOJA_SIFRA = '1234';
+
 let currentTab = 'dnevno';
+
 let currentLanguage = 'sr';
-let currentDate = new Date().toISOString().split('T')[0];
+
+let currentDate =
+    new Date().toISOString().split('T')[0];
+
 let currentText = '';
-let editingBlogId = null;
-let blogDataCache = [];
+
+
+/* =========================================================
+   PREVODI
+   ========================================================= */
 
 const translations = {
+
     sr: {
         title: '📖 Dnevno Čitanje',
+
         dnevno: '📖 Dnevno Čitanje',
         plan: '📜 Godišnji Plan',
         stih: '💎 Stih Ohrabrenja',
         izreka: '💡 Mudre Izreke',
         duhovno: '🕊️ Duhovna Razmatranja',
-        blog: '✍️ Blog',
+
         today: 'Danas',
         share: '📤 Podeli',
         edit: '✏️ Uredi',
-        addBlog: '➕ Novi Blog',
         save: 'Sačuvaj',
         cancel: 'Otkaži',
+
         loading: 'Učitavanje...',
         noText: 'Za ovaj datum još nema unetog teksta.',
-        noBlog: 'Trenutno nema objavljenih lokalnih blogova.',
-        extTitle: '🔗 Posetite naš zvanični Blog',
-        extDesc: 'Za više autorskih tekstova i članaka posetite naš blog na Blogger platformi.',
-        extBtn: '🌐 Otvori Blog (put-ka-bogu.blogspot.com) ↗',
-        saved: 'Sadržaj je uspešno sačuvan.',
+        saved: 'Tekst je uspešno sačuvan.',
         password: 'Unesite šifru:',
         wrongPassword: 'Pogrešna šifra.',
-        error: 'Došlo je do greške pri povezivanju.',
+        error: 'Došlo je do greške.',
         author: 'Autor: Ivica Vučković',
-        contact: 'Kontakt:',
-        blogLabel: 'Blog:'
+        contact: 'Kontakt:'
     },
+
     en: {
         title: '📖 Daily Reading',
+
         dnevno: '📖 Daily Reading',
-        plan: '📜 Annual Plan',
+        plan: '📜 Daily Reading',
         stih: '💎 Verse of Encouragement',
         izreka: '💡 Wise Sayings',
         duhovno: '🕊️ Spiritual Reflections',
-        blog: '✍️ Blog',
+
         today: 'Today',
         share: '📤 Share',
         edit: '✏️ Edit',
-        addBlog: '➕ New Blog',
         save: 'Save',
         cancel: 'Cancel',
+
         loading: 'Loading...',
         noText: 'There is no text entered for this date yet.',
-        noBlog: 'There are no local blog posts published yet.',
-        extTitle: '🔗 Visit our official Blog',
-        extDesc: 'For more articles and posts, visit our external Blogger page.',
-        extBtn: '🌐 Open Blog (put-ka-bogu.blogspot.com) ↗',
-        saved: 'Content successfully saved.',
+        saved: 'Text has been successfully saved.',
         password: 'Enter password:',
         wrongPassword: 'Wrong password.',
         error: 'An error occurred.',
         author: 'Author: Ivica Vučković',
-        contact: 'Contact:',
-        blogLabel: 'Blog:'
+        contact: 'Contact:'
     }
+
 };
 
+
+/* =========================================================
+   PRIMENA PREVODA
+   ========================================================= */
+
 function applyTranslations() {
+
     const t = translations[currentLanguage];
+
     document.getElementById('appTitle').textContent = t.title;
+
     document.getElementById('tab-dnevno').textContent = t.dnevno;
     document.getElementById('tab-plan').textContent = t.plan;
     document.getElementById('tab-stih').textContent = t.stih;
     document.getElementById('tab-izreka').textContent = t.izreka;
     document.getElementById('tab-duhovno').textContent = t.duhovno;
-    document.getElementById('tab-blog').textContent = t.blog;
+
     document.getElementById('todayBtn').textContent = t.today;
     document.getElementById('shareBtn').textContent = t.share;
-    document.getElementById('editBtn').textContent = (currentTab === 'blog') ? t.addBlog : t.edit;
+    document.getElementById('editBtn').textContent = t.edit;
     document.getElementById('saveBtn').textContent = t.save;
     document.getElementById('cancelBtn').textContent = t.cancel;
     document.getElementById('authorText').textContent = t.author;
     document.getElementById('contactText').textContent = t.contact;
-    document.getElementById('blogFooterText').textContent = t.blogLabel;
-    document.getElementById('externalBlogTitle').textContent = t.extTitle;
-    document.getElementById('externalBlogDesc').textContent = t.extDesc;
-    document.getElementById('externalBlogBtn').textContent = t.extBtn;
 }
+
+
+/* =========================================================
+   JEZIK
+   ========================================================= */
 
 function setLanguage(lang) {
+
     currentLanguage = lang;
-    document.getElementById('srBtn').classList.toggle('active', lang === 'sr');
-    document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+
+    document.getElementById('srBtn')
+        .classList.toggle('active', lang === 'sr');
+
+    document.getElementById('enBtn')
+        .classList.toggle('active', lang === 'en');
+
     applyTranslations();
+
     loadTabContent();
 }
+
+
+/* =========================================================
+   TABOVI
+   ========================================================= */
 
 function switchTab(tab) {
+
     currentTab = tab;
-    editingBlogId = null;
 
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.tab')
+        .forEach(button => button.classList.remove('active'));
 
-    document.getElementById('editArea').classList.add('hidden');
-    document.getElementById('mainControls').classList.remove('hidden');
+    document.getElementById('tab-' + tab)
+        .classList.add('active');
 
-    const isBlog = (tab === 'blog');
-    document.getElementById('dateSection').classList.toggle('hidden', isBlog);
-    document.getElementById('displayBox').classList.toggle('hidden', isBlog);
-    document.getElementById('blogContainer').classList.toggle('hidden', !isBlog);
-    document.getElementById('shareBtn').classList.toggle('hidden', isBlog);
+    document.getElementById('editArea')
+        .classList.add('hidden');
 
-    applyTranslations();
+    document.getElementById('mainControls')
+        .classList.remove('hidden');
+
     loadTabContent();
 }
 
+
+/* =========================================================
+   DATUM
+   ========================================================= */
+
 function getDatePart() {
+
     const parts = currentDate.split('-');
+
     return parts[1] + '-' + parts[2];
 }
 
+
+/* =========================================================
+   KLJUČEVI
+   ========================================================= */
+
 function getKeysToSearch() {
+
     const datePart = getDatePart();
+
     let prefix = '';
-    if (currentTab === 'plan') prefix = 'plan_';
-    if (currentTab === 'stih') prefix = 'stih_';
-    if (currentTab === 'izreka') prefix = 'izreka_';
-    if (currentTab === 'duhovno') prefix = 'duhovno_';
+
+    if (currentTab === 'dnevno') {
+        prefix = '';
+    }
+
+    if (currentTab === 'plan') {
+        prefix = 'plan_';
+    }
+
+    if (currentTab === 'stih') {
+        prefix = 'stih_';
+    }
+
+    if (currentTab === 'izreka') {
+        prefix = 'izreka_';
+    }
+
+    if (currentTab === 'duhovno') {
+        prefix = 'duhovno_';
+    }
 
     const key = prefix + datePart;
-    const englishKey = 'en_' + prefix + datePart;
-    return (currentLanguage === 'en') ? [englishKey, key] : [key];
+
+    const englishKey =
+        'en_' + prefix + datePart;
+
+    if (currentLanguage === 'en') {
+        return [englishKey, key];
+    }
+
+    return [key];
+
 }
+
+
+/* =========================================================
+   UČITAVANJE
+   ========================================================= */
 
 async function loadTabContent() {
-    initSupabase();
-    document.getElementById('status').textContent = '';
-    if (currentTab === 'blog') {
-        await loadBlogs();
-    } else {
-        await loadStandardReading();
-    }
-}
 
-async function loadStandardReading() {
-    const displayBox = document.getElementById('displayBox');
-    displayBox.textContent = translations[currentLanguage].loading;
+    const displayBox =
+        document.getElementById('displayBox');
+
+    const status =
+        document.getElementById('status');
+
+    displayBox.textContent =
+        translations[currentLanguage].loading;
+
+    status.textContent = '';
+
     currentText = '';
-
-    if (!_supabase) {
-        displayBox.textContent = translations[currentLanguage].noText;
-        return;
-    }
 
     const keys = getKeysToSearch();
 
     try {
-        const { data, error } = await _supabase
-            .from('citanja')
-            .select('datum, tekst')
-            .in('datum', keys);
 
-        if (error) throw error;
+        const { data, error } =
+            await _supabase
+                .from('citanja')
+                .select('datum, tekst')
+                .in('datum', keys);
 
-        let found = null;
-        if (data && data.length > 0) {
-            found = data.find(row => row.datum === keys[0]) || (currentLanguage === 'en' ? data.find(row => row.datum === keys[1]) : null);
-        }
+        if (error) {
+            console.error(error);
 
-        if (found && found.tekst) {
-            currentText = found.tekst;
-            displayBox.innerHTML = safeFormatText(found.tekst);
-        } else {
-            displayBox.textContent = translations[currentLanguage].noText;
-        }
-    } catch (err) {
-        console.error("Greška pri učitavanju:", err);
-        displayBox.textContent = translations[currentLanguage].noText;
-    }
-}
+            displayBox.textContent =
+                translations[currentLanguage].error;
 
-async function loadBlogs() {
-    const blogList = document.getElementById('blogList');
-    blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].loading}</p>`;
+            status.textContent =
+                error.message;
 
-    if (!_supabase) {
-        blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
-        return;
-    }
-
-    try {
-        const { data, error } = await _supabase
-            .from('blog')
-            .select('*')
-            .order('datum_objave', { ascending: false });
-
-        if (error) throw error;
-
-        blogDataCache = data || [];
-
-        if (!data || data.length === 0) {
-            blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
             return;
         }
 
-        renderBlogList();
+        let found = null;
+
+        if (currentLanguage === 'en') {
+
+            found = data.find(row =>
+                row.datum === keys[0]
+            );
+
+            if (!found) {
+                found = data.find(row =>
+                    row.datum === keys[1]
+                );
+            }
+
+        } else {
+
+            found = data.find(row =>
+                row.datum === keys[0]
+            );
+
+        }
+
+        if (found && found.tekst) {
+
+            currentText = found.tekst;
+
+            displayBox.innerHTML =
+                formatText(found.tekst);
+
+        } else {
+
+            displayBox.textContent =
+                translations[currentLanguage].noText;
+
+        }
+
     } catch (err) {
-        console.warn("Greška ili tabela ne postoji:", err);
-        blogList.innerHTML = `<p style="text-align:center;">${translations[currentLanguage].noBlog}</p>`;
+
+        console.error(err);
+
+        displayBox.textContent =
+            translations[currentLanguage].error;
+
+        status.textContent =
+            err.message || '';
+
     }
+
 }
 
-function renderBlogList() {
-    const blogList = document.getElementById('blogList');
-    blogList.innerHTML = '';
 
-    blogDataCache.forEach((item, index) => {
-        const dateStr = item.datum_objave ? new Date(item.datum_objave).toLocaleString() : '';
-        const div = document.createElement('div');
-        div.className = 'blog-item';
+/* =========================================================
+   FORMATIRANJE TEKSTA
+   ========================================================= */
 
-        const h3 = document.createElement('h3');
-        h3.textContent = item.naslov || '';
+function formatText(text) {
 
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'blog-date';
-        dateDiv.textContent = dateStr ? '📅 ' + dateStr : '';
-
-        const textDiv = document.createElement('div');
-        textDiv.innerHTML = safeFormatText(item.tekst || '');
-
-        const ctrlDiv = document.createElement('div');
-        ctrlDiv.className = 'controls';
-        ctrlDiv.style.marginTop = '10px';
-
-        const shareBtn = document.createElement('button');
-        shareBtn.className = 'share';
-        shareBtn.textContent = '📤 Podeli';
-        shareBtn.onclick = () => shareCustomText(item.naslov, item.tekst);
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'edit';
-        editBtn.textContent = '✏️ Izmeni';
-        editBtn.onclick = () => editBlogItemByIndex(index);
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.textContent = '🗑️ Obriši';
-        delBtn.onclick = () => deleteBlogItem(item.id);
-
-        ctrlDiv.appendChild(shareBtn);
-        ctrlDiv.appendChild(editBtn);
-        ctrlDiv.appendChild(delBtn);
-
-        div.appendChild(h3);
-        if (dateStr) div.appendChild(dateDiv);
-        div.appendChild(textDiv);
-        div.appendChild(ctrlDiv);
-
-        blogList.appendChild(div);
-    });
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/__(.*?)__/g, '<i>$1</i>')
+        .replace(/\n/g, '<br>');
 }
 
-function safeFormatText(text) {
-    if (!text) return '';
-    let safe = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 
-    safe = safe.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    safe = safe.replace(/__(.*?)__/g, '<i>$1</i>');
-    return safe.replace(/\n/g, '<br>');
-}
+/* =========================================================
+   UREĐIVANJE
+   ========================================================= */
 
 function enableEdit() {
-    const password = prompt(translations[currentLanguage].password);
+
+    const password =
+        prompt(translations[currentLanguage].password);
+
     if (password !== MOJA_SIFRA) {
-        if (password !== null) alert(translations[currentLanguage].wrongPassword);
-        return;
-    }
-    editingBlogId = null;
-    document.getElementById('blogTitleInput').value = '';
-    document.getElementById('editor').value = currentText;
-    showEditor(currentTab === 'blog');
-}
 
-function editBlogItemByIndex(index) {
-    const item = blogDataCache[index];
-    if (!item) return;
+        if (password !== null) {
 
-    const password = prompt(translations[currentLanguage].password);
-    if (password !== MOJA_SIFRA) {
-        if (password !== null) alert(translations[currentLanguage].wrongPassword);
+            alert(
+                translations[currentLanguage].wrongPassword
+            );
+
+        }
+
         return;
     }
 
-    editingBlogId = item.id;
-    document.getElementById('blogTitleInput').value = item.naslov;
-    document.getElementById('editor').value = item.tekst;
-    showEditor(true);
+    document.getElementById('editor').value =
+        currentText;
+
+    document.getElementById('displayBox')
+        .classList.add('hidden');
+
+    document.getElementById('mainControls')
+        .classList.add('hidden');
+
+    document.getElementById('editArea')
+        .classList.remove('hidden');
+
+    document.querySelector('.toolbar').style.display =
+        'flex';
+
 }
 
-function showEditor(isBlog) {
-    document.getElementById('displayBox').classList.add('hidden');
-    document.getElementById('blogContainer').classList.add('hidden');
-    document.getElementById('mainControls').classList.add('hidden');
 
-    document.getElementById('blogTitleArea').classList.toggle('hidden', !isBlog);
-    document.getElementById('editArea').classList.remove('hidden');
-    document.querySelector('.toolbar').style.display = 'flex';
-}
+/* =========================================================
+   ČUVANJE
+   ========================================================= */
 
-async function saveContent() {
-    if (currentTab === 'blog') {
-        await saveBlog();
-    } else {
-        await saveStandardReading();
-    }
-}
+async function saveTabContent() {
 
-async function saveStandardReading() {
-    initSupabase();
-    if (!_supabase) {
-        alert("Baza nije povezana. Proverite internet vezu.");
-        return;
-    }
+    const newText =
+        document.getElementById('editor').value;
 
-    const newText = document.getElementById('editor').value;
-    const datePart = getDatePart();
+    const datePart =
+        getDatePart();
+
     let prefix = '';
 
-    if (currentTab === 'plan') prefix = 'plan_';
-    if (currentTab === 'stih') prefix = 'stih_';
-    if (currentTab === 'izreka') prefix = 'izreka_';
-    if (currentTab === 'duhovno') prefix = 'duhovno_';
+    if (currentTab === 'dnevno') {
+        prefix = '';
+    }
 
-    let dbKey = prefix + datePart;
-    if (currentLanguage === 'en') dbKey = 'en_' + dbKey;
+    if (currentTab === 'plan') {
+        prefix = 'plan_';
+    }
+
+    if (currentTab === 'stih') {
+        prefix = 'stih_';
+    }
+
+    if (currentTab === 'izreka') {
+        prefix = 'izreka_';
+    }
+
+    if (currentTab === 'duhovno') {
+        prefix = 'duhovno_';
+    }
+
+    let dbKey =
+        prefix + datePart;
+
+    if (currentLanguage === 'en') {
+        dbKey = 'en_' + dbKey;
+    }
 
     try {
-        const { error } = await _supabase
-            .from('citanja')
-            .upsert({ datum: dbKey, tekst: newText }, { onConflict: 'datum' });
 
-        if (error) throw error;
+        const { error } =
+            await _supabase
+                .from('citanja')
+                .upsert(
+                    {
+                        datum: dbKey,
+                        tekst: newText
+                    },
+                    {
+                        onConflict: 'datum'
+                    }
+                );
+
+        if (error) {
+
+            console.error(error);
+
+            alert(
+                translations[currentLanguage].error +
+                '\n\n' +
+                error.message
+            );
+
+            return;
+        }
 
         currentText = newText;
-        closeEditor();
-        document.getElementById('status').textContent = translations[currentLanguage].saved;
+
+        document.getElementById('editor').value =
+            newText;
+
+        document.getElementById('editArea')
+            .classList.add('hidden');
+
+        document.getElementById('displayBox')
+            .classList.remove('hidden');
+
+        document.getElementById('mainControls')
+            .classList.remove('hidden');
+
+        document.querySelector('.toolbar').style.display =
+            'none';
+
+        document.getElementById('status').textContent =
+            translations[currentLanguage].saved;
+
         loadTabContent();
+
     } catch (err) {
+
         console.error(err);
-        alert(translations[currentLanguage].error + '\n\n' + err.message);
+
+        alert(
+            translations[currentLanguage].error +
+            '\n\n' +
+            (err.message || '')
+        );
+
     }
+
 }
 
-async function saveBlog() {
-    initSupabase();
-    if (!_supabase) {
-        alert("Baza nije povezana. Proverite internet vezu.");
+
+/* =========================================================
+   OTKAZIVANJE
+   ========================================================= */
+
+function cancelEdit() {
+
+    document.getElementById('editArea')
+        .classList.add('hidden');
+
+    document.getElementById('displayBox')
+        .classList.remove('hidden');
+
+    document.getElementById('mainControls')
+        .classList.remove('hidden');
+
+    document.querySelector('.toolbar').style.display =
+        'none';
+
+}
+
+
+/* =========================================================
+   PROMENA DATUMA
+   ========================================================= */
+
+function changeDate() {
+
+    currentDate =
+        document.getElementById('datePicker').value;
+
+    loadTabContent();
+
+}
+
+
+function changeDateBy(days) {
+
+    const date =
+        new Date(currentDate + 'T12:00:00');
+
+    date.setDate(
+        date.getDate() + days
+    );
+
+    currentDate =
+        date.toISOString().split('T')[0];
+
+    document.getElementById('datePicker').value =
+        currentDate;
+
+    loadTabContent();
+
+}
+
+
+function goToday() {
+
+    currentDate =
+        new Date().toISOString().split('T')[0];
+
+    document.getElementById('datePicker').value =
+        currentDate;
+
+    loadTabContent();
+
+}
+
+
+/* =========================================================
+   DELJENJE SA LINKOM
+   ========================================================= */
+
+async function shareContent() {
+
+    if (!currentText) {
+
+        alert(
+            translations[currentLanguage].noText
+        );
+
         return;
     }
 
-    const naslov = document.getElementById('blogTitleInput').value.trim();
-    const tekst = document.getElementById('editor').value.trim();
+    const title =
+        document.getElementById('appTitle').textContent;
 
-    if (!naslov || !tekst) {
-        alert(currentLanguage === 'sr' ? 'Naslov i tekst su obavezni.' : 'Title and text are
+    const textWithUrl = currentText + "\n\n" + window.location.href;
+
+    const shareData = {
+        title: title,
+        text: currentText,
+        url: window.location.href
+    };
+
+    try {
+
+        if (navigator.share) {
+
+            await navigator.share(shareData);
+
+        } else {
+
+            await navigator.clipboard.writeText(
+                textWithUrl
+            );
+
+            alert(
+                currentLanguage === 'sr'
+                    ? 'Tekst i link su kopirani.'
+                    : 'Text and link copied.'
+            );
+
+        }
+
+    } catch (err) {
+
+        console.log(err);
+
+    }
+
+}
+
+
+/* =========================================================
+   BOLD / ITALIC
+   ========================================================= */
+
+function applyFormatTag(tag) {
+    const txtArea = document.getElementById('editor');
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const openTag = `<${tag}>`;
+    const closeTag = `</${tag}>`;
+
+    if (start !== end) {
+        const selected = txtArea.value.substring(start, end);
+        const replacement = openTag + selected + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start;
+        txtArea.selectionEnd = start + replacement.length;
+    } else {
+        const placeholder = "tekst";
+        const replacement = openTag + placeholder + closeTag;
+        
+        txtArea.value = txtArea.value.substring(0, start) + replacement + txtArea.value.substring(end);
+        
+        txtArea.selectionStart = start + openTag.length;
+        txtArea.selectionEnd = start + openTag.length + placeholder.length;
+    }
+    
+    txtArea.focus();
+}
+
+function makeBold() {
+    applyFormatTag('b');
+}
+
+function makeItalic() {
+    applyFormatTag('i');
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+
+        document.getElementById('datePicker').value =
+            currentDate;
+
+        applyTranslations();
+
+        loadTabContent();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
