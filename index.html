@@ -129,10 +129,15 @@ const SUPABASE_URL = 'https://tkwxklzhjvccgszxkxsy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrd3hrbHpoanZjY2dzenhreHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyODU5ODYsImV4cCI6MjEwMzg2MTk4Nn0.CBLPm10hmHrAhnTl1tDQ0Z-NAsir2-GKZfhQgpmKOfo';
 
 let _supabase = null;
-try {
-    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (e) {
-    console.error("Supabase nije inicijalizovan:", e);
+
+function initSupabase() {
+    if (typeof supabase !== 'undefined' && !_supabase) {
+        try {
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            console.error("Greška pri inicijalizaciji Supabase-a:", e);
+        }
+    }
 }
 
 const MOJA_SIFRA = '1234';
@@ -271,6 +276,7 @@ function getKeysToSearch() {
 }
 
 async function loadTabContent() {
+    initSupabase();
     document.getElementById('status').textContent = '';
     if (currentTab === 'blog') {
         await loadBlogs();
@@ -285,7 +291,7 @@ async function loadStandardReading() {
     currentText = '';
 
     if (!_supabase) {
-        displayBox.textContent = translations[currentLanguage].error;
+        displayBox.textContent = translations[currentLanguage].noText;
         return;
     }
 
@@ -459,6 +465,12 @@ async function saveContent() {
 }
 
 async function saveStandardReading() {
+    initSupabase();
+    if (!_supabase) {
+        alert("Baza nije povezana. Proverite internet vezu.");
+        return;
+    }
+
     const newText = document.getElementById('editor').value;
     const datePart = getDatePart();
     let prefix = '';
@@ -489,23 +501,14 @@ async function saveStandardReading() {
 }
 
 async function saveBlog() {
+    initSupabase();
+    if (!_supabase) {
+        alert("Baza nije povezana. Proverite internet vezu.");
+        return;
+    }
+
     const naslov = document.getElementById('blogTitleInput').value.trim();
     const tekst = document.getElementById('editor').value.trim();
 
     if (!naslov || !tekst) {
-        alert(currentLanguage === 'sr' ? 'Naslov i tekst su obavezni.' : 'Title and text are required.');
-        return;
-    }
-
-    try {
-        let error;
-        if (editingBlogId) {
-            ({ error } = await _supabase
-                .from('blog')
-                .update({ naslov: naslov, tekst: tekst })
-                .eq('id', editingBlogId));
-        } else {
-            ({ error } = await _supabase
-                .from('blog')
-                .insert([{ naslov: naslov, tekst: tekst }]));
- 
+        alert(currentLanguage === 'sr' ? 'Naslov i tekst su obavezni.' : 'Title and text are
